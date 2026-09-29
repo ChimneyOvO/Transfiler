@@ -245,4 +245,45 @@ def test_v125_settings_and_export_dir_api():
     assert open_res.status_code == 200
     assert open_res.json()["status"] == "success"
 
+def test_v126_model_fetching_and_decoupled_api():
+    # 1. 测试在取消预设平台选项后，仅配置 base_url 与 api_key
+    save_res = client.post("/api/settings", json={
+        "base_url": "https://api.deepseek.com/v1",
+        "api_key": "sk-mock-key-v126",
+        "model_name": "deepseek-chat"
+    })
+    assert save_res.status_code == 200
+    assert save_res.json()["status"] == "success"
+
+    # 2. 读取验证
+    get_res = client.get("/api/settings")
+    assert get_res.status_code == 200
+    st = get_res.json()["data"]
+    assert st["base_url"] == "https://api.deepseek.com/v1"
+    assert st["model_name"] == "deepseek-chat"
+
+    # 3. 测试拉取模型接口 POST /api/settings/fetch-models
+    fetch_res = client.post("/api/settings/fetch-models", json={
+        "base_url": "http://127.0.0.1:9999/v1",
+        "api_key": ""
+    })
+    assert fetch_res.status_code == 200
+    fetch_data = fetch_res.json()
+    assert "success" in fetch_data
+    assert "models" in fetch_data
+
+    # 4. 测试 GET /api/settings/models 路由
+    get_models_res = client.get("/api/settings/models")
+    assert get_models_res.status_code == 200
+    assert "models" in get_models_res.json()
+
+    # 5. 测试根据 API 选择并更新模型
+    sel_res = client.post("/api/settings", json={
+        "model_name": "deepseek-reasoner"
+    })
+    assert sel_res.status_code == 200
+    chk_settings = client.get("/api/settings").json()["data"]
+    assert chk_settings["model_name"] == "deepseek-reasoner"
+
+
 

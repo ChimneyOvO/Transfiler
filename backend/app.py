@@ -15,7 +15,7 @@ init_db()
 app = FastAPI(
     title="TransFiler 制造业文档双语智能转换系统",
     description="专为工业 SOP、工艺文件、参数表格打造的高保真双语制作系统",
-    version="1.2.5"
+    version="1.2.6"
 )
 
 # 配置 CORS
@@ -55,4 +55,4 @@ def serve_index():
 
 @app.get("/health")
 def health_check():
-    return {"status": "healthy", "service": "TransFiler", "version": "1.2.5"}
+    return {"status": "healthy", "service": "TransFiler", "version": "1.2.6"}

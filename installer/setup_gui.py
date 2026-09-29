@@ -15,7 +15,7 @@ from tkinter import ttk, filedialog, messagebox
 
 APP_NAME = "TransFiler"
 APP_DISPLAY_NAME = "TransFiler 制造业文档双语智能转换系统"
-APP_VERSION = "1.2.5"
+APP_VERSION = "1.2.6"
 APP_PUBLISHER = "TransFiler Team"
 
 # 确定默认安装路径 (%LOCALAPPDATA%\Programs\TransFiler)

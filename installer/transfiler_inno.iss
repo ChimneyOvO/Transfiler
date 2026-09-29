@@ -2,7 +2,7 @@
 ; 适用于 Inno Setup 6+ 编译标准企业级安装包
 
 #define MyAppName "TransFiler"
-#define MyAppVersion "1.2.5"
+#define MyAppVersion "1.2.6"
 #define MyAppPublisher "TransFiler Team"
 #define MyAppExeName "TransFiler.exe"
 

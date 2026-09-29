@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![Version](https://img.shields.io/badge/version-v1.2.5-blue.svg?style=flat-square)
+![Version](https://img.shields.io/badge/version-v1.2.6-blue.svg?style=flat-square)
 ![Python](https://img.shields.io/badge/Python-3.10%2B-green.svg?style=flat-square)
 ![Framework](https://img.shields.io/badge/Framework-FastAPI%20%7C%20PyWebView-orange.svg?style=flat-square)
 ![Engine](https://img.shields.io/badge/Engine-OpenXML%20%7C%20PPTX%20Lossless-blueviolet.svg?style=flat-square)
@@ -93,7 +93,7 @@
 无需安装 Python 或任何依赖环境，开箱即用：
 
 1. **图形化安装版**：
-   - 运行 [`TransFiler_v1.2.5_Setup.exe`] 的安装向导；
+   - 运行 [`TransFiler_v1.2.6_Setup.exe`] 的安装向导；
    - 支持自定义安装路径、创建桌面快捷方式、创建开始菜单目录并自动注册至 Windows 控制面板。
 2. **绿色免安装版**：
    - 双击运行 [`dist/TransFiler.exe`] 即可秒级启动原生桌面控制台。
@@ -168,7 +168,7 @@ TransFiler 采用标准 OpenAI 兼容协议，支持市面上几乎所有的主�
 该批处理将依次自动执行：
 1. 编译生成主程序免安装版：`dist\TransFiler.exe`
 2. 编译生成独立卸载程序：`dist\uninstall.exe`
-3. 编译生成完整的 Windows 图形化安装向导：`dist_installer\TransFiler_v1.2.5_Setup.exe`
+3. 编译生成完整的 Windows 图形化安装向导：`dist_installer\TransFiler_v1.2.6_Setup.exe`
 
 ---
 
@@ -181,7 +181,7 @@ python -m pytest -v
 ```
 
 *测试覆盖项：*
-- `test_api_endpoints.py`：系统配置、术语库 CRUD、任务流集成测试、PPTX 端到端、Gemini 配置及 v1.2.5 导出目录与主题接口测试；
+- `test_api_endpoints.py`：系统配置、动态模型拉取与选择、术语库 CRUD、任务流集成测试、PPTX 端到端、导出目录与主题接口测试；
 - `test_pptx_parser.py`：PPTX 幻灯片图元提取、表格、双向排版重构与效果核验；
 - `test_docx_parser.py`：Word 样式继承、复杂 60 行职位说明书表格多段落无损提取与双语重构验证；
 - `test_xlsx_parser.py`：Excel 基础行高与文本提取测试；
@@ -193,6 +193,10 @@ python -m pytest -v
 
 ## 📄 更新日志摘要
 
+* **[v1.2.6] - 2026-09**：
+  * **API 配置取消预设平台选项**：取消预设平台下拉选择限制，简化为仅需配置 API URL 与 API Key，全面开放适配任意 OpenAI 兼容端点；
+  * **智能动态模型发现与选择入口**：配置 API 后，系统根据接口自动通过 `/models` 端点探测拉取所有可用模型，支持一键下拉选择或自由手动指定；
+  * **全局多场景快速切换模型**：在设置中心、左侧功能栏底部引擎卡片及文档制作工作台均提供模型选择与即时切换入口，支持模糊搜索过滤与模型连通性独立校验。
 * **[v1.2.5] - 2026-09**：
   * **系统设置中心全面改版升级**：重构为 4 大独立卡片式控制中心（模型配置、存储路径、外观主题、系统关于），提供工业级设置管理；
   * **API 接口深度整合入设置**：全面整合 DeepSeek、Gemini、SiliconFlow、DashScope、智谱、Moonshot、OpenAI、本地 Ollama 及自定义网关，支持密钥掩码切换与连通性即时自检；

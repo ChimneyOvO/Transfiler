@@ -41,7 +41,7 @@ def start_server():
 
 def main():
     print("=" * 60)
-    print("  TransFiler v1.2.5 正在启动...")
+    print("  TransFiler v1.2.6 正在启动...")
     print(f"  本地服务地址: {URL}")
     print("=" * 60)
 
@@ -59,12 +59,12 @@ def main():
     # 2. 尝试打开原生桌面窗口 (PyWebView，并持久化本地存储路径)
     try:
         import webview
-        print("  正在创建 Windows 原生桌面窗口 (v1.2.5)...")
+        print("  正在创建 Windows 原生桌面窗口 (v1.2.6)...")
         storage_dir = str(DATA_DIR / "webview_storage")
         os.makedirs(storage_dir, exist_ok=True)
 
         window = webview.create_window(
-            title="TransFiler 制造业文档双语智能转换系统 v1.2.5",
+            title="TransFiler 制造业文档双语智能转换系统 v1.2.6",
             url=URL,
             width=1280,
             height=850,

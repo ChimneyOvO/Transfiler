@@ -27,7 +27,11 @@ class SettingsUpdateModel(BaseModel):
 class TestConnectionModel(BaseModel):
     api_key: str
     base_url: str
-    model_name: str
+    model_name: Optional[str] = None
+
+class FetchModelsModel(BaseModel):
+    api_key: Optional[str] = None
+    base_url: Optional[str] = None
 
 class OpenExportDirModel(BaseModel):
     export_dir: Optional[str] = None
@@ -57,8 +61,34 @@ def save_settings(data: SettingsUpdateModel):
 
 @router.post("/test-connection")
 async def test_connection(data: TestConnectionModel):
-    translator = LLMTranslator(api_key=data.api_key, base_url=data.base_url, model_name=data.model_name)
+    settings = get_all_settings()
+    model_name = (data.model_name or "").strip() or settings.get("model_name", "deepseek-chat")
+    translator = LLMTranslator(api_key=data.api_key, base_url=data.base_url, model_name=model_name)
     res = await translator.test_connection()
+    return res
+
+@router.post("/fetch-models")
+async def fetch_models(data: Optional[FetchModelsModel] = None):
+    """从指定的或已保存的 API 服务商拉取模型列表"""
+    settings = get_all_settings()
+    api_key = data.api_key if (data and data.api_key is not None) else settings.get("api_key", "")
+    base_url = data.base_url if (data and data.base_url is not None) else settings.get("base_url", "https://api.deepseek.com/v1")
+    model_name = settings.get("model_name", "deepseek-chat")
+
+    translator = LLMTranslator(api_key=api_key, base_url=base_url, model_name=model_name)
+    res = await translator.fetch_models()
+    return res
+
+@router.get("/models")
+async def get_models():
+    """拉取当前已保存配置的 API 模型列表"""
+    settings = get_all_settings()
+    api_key = settings.get("api_key", "")
+    base_url = settings.get("base_url", "https://api.deepseek.com/v1")
+    model_name = settings.get("model_name", "deepseek-chat")
+
+    translator = LLMTranslator(api_key=api_key, base_url=base_url, model_name=model_name)
+    res = await translator.fetch_models()
     return res
 
 @router.get("/check-connection")
@@ -66,11 +96,12 @@ async def check_current_connection():
     """使用当前持久化保存的设置执行开机连通性检测"""
     settings = get_all_settings()
     api_key = settings.get("api_key", "").strip()
-    base_url = settings.get("base_url", "https://api.deepseek.com/v1")
-    model_name = settings.get("model_name", "deepseek-chat")
-    provider = settings.get("provider", "deepseek")
+    base_url = settings.get("base_url", "https://api.deepseek.com/v1").strip()
+    model_name = settings.get("model_name", "deepseek-chat").strip()
+    provider = settings.get("provider", "custom")
 
-    if not api_key and provider != "ollama":
+    is_local = "localhost" in base_url or "127.0.0.1" in base_url or ":11434" in base_url
+    if not api_key and not is_local:
         return {
             "success": False,
             "status": "unconfigured",

@@ -5,6 +5,7 @@ const AppState = {
   currentTask: null, // { task_id, file_name, file_size, total_items, items: [] }
   supportedLanguages: [],
   settings: {},
+  availableModels: [], // v1.2.6: 从 API 动态拉取的可用模型列表
   currentTheme: 'dark',
   lastExportPath: ''
 };
@@ -187,7 +188,8 @@ async function checkApiConnectionOnStartup(settings) {
   const text = document.getElementById('engine-status-text');
   const badge = document.getElementById('engine-status-badge');
 
-  if (!settings.api_key && settings.provider !== 'ollama') {
+  const isLocal = (settings.base_url || '').includes('localhost') || (settings.base_url || '').includes('127.0.0.1') || (settings.base_url || '').includes(':11434');
+  if (!settings.api_key && !isLocal) {
     updateEngineStatusUI({
       success: false,
       status: 'unconfigured',
@@ -232,12 +234,18 @@ function updateEngineStatusUI(result) {
   const text = document.getElementById('engine-status-text');
   const badge = document.getElementById('engine-status-badge');
   const container = document.getElementById('engine-status-container');
+  const transActiveModel = document.getElementById('trans-active-model-name');
+  const transModelBadge = document.getElementById('trans-model-status-badge');
+
+  if (result.model_name && transActiveModel) {
+    transActiveModel.innerText = result.model_name;
+  }
 
   if (result.success) {
     if (dot) dot.className = "w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]";
     if (dotCompact) {
       dotCompact.className = "w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)] ring-2 ring-emerald-500/20";
-      dotCompact.title = `API 在线: ${result.model_name || '大模型'} 引擎 (点击前往设置)`;
+      dotCompact.title = `API 在线: ${result.model_name || '大模型'} 引擎 (点击切换模型)`;
     }
     if (text) text.innerText = `${result.model_name || 'DeepSeek'} 引擎`;
     if (badge) {
@@ -246,7 +254,11 @@ function updateEngineStatusUI(result) {
       badge.style.color = "var(--badge-highlight-text)";
       badge.innerText = "在线";
     }
-    if (container) container.title = `${result.message || 'API 连通正常'} (点击前往配置)`;
+    if (container) container.title = `${result.message || 'API 连通正常'} (点击选择模型 / 切换)`;
+    if (transModelBadge) {
+      transModelBadge.innerText = "在线 ✔";
+      transModelBadge.style.color = "#34d399";
+    }
   } else if (result.status === 'unconfigured') {
     if (dot) dot.className = "w-2 h-2 rounded-full bg-amber-400";
     if (dotCompact) {
@@ -261,12 +273,16 @@ function updateEngineStatusUI(result) {
       badge.innerText = "未配置";
     }
     if (container) container.title = "未配置 API Key，点击前往配置";
+    if (transModelBadge) {
+      transModelBadge.innerText = "本地模拟";
+      transModelBadge.style.color = "#f59e0b";
+    }
   } else {
     // 失败状态 (红点告警 + 连接失败标签)
     if (dot) dot.className = "w-2 h-2 rounded-full bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.8)]";
     if (dotCompact) {
       dotCompact.className = "w-2.5 h-2.5 rounded-full bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.8)] ring-2 ring-rose-500/20";
-      dotCompact.title = `连接失败: ${result.message}\n(点击前往检查配置与网络)`;
+      dotCompact.title = `连接失败: ${result.message}\n(点击检查配置)`;
     }
     if (text) text.innerText = `${result.model_name || 'API'} 连接失败`;
     if (badge) {
@@ -275,7 +291,11 @@ function updateEngineStatusUI(result) {
       badge.style.color = "#fb7185";
       badge.innerText = "连接失败";
     }
-    if (container) container.title = `连接失败: ${result.message}\n(点击前往检查配置与网络)`;
+    if (container) container.title = `连接失败: ${result.message}\n(点击检查配置)`;
+    if (transModelBadge) {
+      transModelBadge.innerText = "异常";
+      transModelBadge.style.color = "#fb7185";
+    }
   }
 }
 
@@ -329,6 +349,11 @@ function restoreTranslateOptions() {
       r.checked = true;
     }
   });
+
+  const transActiveModel = document.getElementById('trans-active-model-name');
+  if (transActiveModel && AppState.settings?.model_name) {
+    transActiveModel.innerText = AppState.settings.model_name;
+  }
 }
 
 // 后台异步保存选项到数据库

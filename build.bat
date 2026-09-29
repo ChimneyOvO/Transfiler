@@ -31,7 +31,7 @@ if errorlevel 1 (
 )
 
 echo.
-echo [4/4] 正在生成完整 Windows 图形化安装向导 (TransFiler_v1.2.5_Setup.exe)...
+echo [4/4] 正在生成完整 Windows 图形化安装向导 (TransFiler_v1.2.6_Setup.exe)...
 python -m PyInstaller --clean --distpath "dist_installer" installer_build.spec
 if errorlevel 1 (
     echo [错误] 安装包生成失败！
@@ -43,7 +43,7 @@ echo.
 echo ======================================================================
 echo   🎉 全部编译完成！成果物清单：
 echo.
-echo   1. 完整安装向导包: dist_installer\TransFiler_v1.2.5_Setup.exe
+echo   1. 完整安装向导包: dist_installer\TransFiler_v1.2.6_Setup.exe
 echo   2. 单文件绿色免安装版: dist\TransFiler.exe
 echo   3. 独立卸载程序: dist\uninstall.exe
 echo ======================================================================

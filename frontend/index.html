@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TransFiler 制造业文档双语智能转换系统 v1.2.5</title>
+  <title>TransFiler 制造业文档双语智能转换系统 v1.2.6</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Phosphor Icons CDN (统一矢量工学图标库) -->
@@ -25,7 +25,7 @@
           <div class="sidebar-text-collapsible overflow-hidden whitespace-nowrap">
             <div class="flex items-center gap-1.5">
               <h1 class="font-bold text-xs tracking-tight leading-none" style="color: var(--text-primary);">TransFiler</h1>
-              <span class="text-[9px] font-mono font-medium px-1 py-0.5 rounded" style="background: var(--accent-subtle); color: var(--accent-primary);">v1.2.5</span>
+              <span class="text-[9px] font-mono font-medium px-1 py-0.5 rounded" style="background: var(--accent-subtle); color: var(--accent-primary);">v1.2.6</span>
             </div>
             <p class="text-[10px] opacity-60 mt-0.5 truncate" style="color: var(--text-secondary);">制造业多语种双语系统</p>
           </div>
@@ -63,7 +63,7 @@
     </div>
 
     <!-- 底部状态指示 (展开/折叠双态) -->
-    <div id="engine-status-container" onclick="switchTab('settings')" class="sidebar-status-card p-3 m-2 rounded-lg border text-xs cursor-pointer hover:border-blue-500/40 transition group" style="background-color: var(--bg-card-subtle); border-color: var(--border-subtle);" title="点击前往系统设置">
+    <div id="engine-status-container" onclick="openModelSelectionModal()" class="sidebar-status-card p-3 m-2 rounded-lg border text-xs cursor-pointer hover:border-blue-500/40 transition group" style="background-color: var(--bg-card-subtle); border-color: var(--border-subtle);" title="点击根据已配置 API 选择模型或管理设置">
       <!-- 展开态状态显示 -->
       <div class="sidebar-status-full">
         <div class="flex items-center justify-between mb-1.5">
@@ -75,12 +75,12 @@
         </div>
         <div class="text-[10px] flex justify-between font-mono" style="color: var(--text-muted);">
           <span id="sidebar-glossary-count" class="truncate">术语库：加载中...</span>
-          <span class="opacity-70 group-hover:opacity-100 group-hover:text-blue-400 transition flex-shrink-0">设置 &rarr;</span>
+          <span class="opacity-70 group-hover:opacity-100 group-hover:text-blue-400 transition flex-shrink-0">切换模型 &rarr;</span>
         </div>
       </div>
       <!-- 折叠态极简状态显示 -->
       <div class="sidebar-status-compact hidden items-center justify-center py-1">
-        <span id="engine-status-dot-compact" class="w-2.5 h-2.5 rounded-full bg-slate-400 ring-2 ring-blue-500/20" title="API 连接状态 (点击查看详情)"></span>
+        <span id="engine-status-dot-compact" class="w-2.5 h-2.5 rounded-full bg-slate-400 ring-2 ring-blue-500/20" title="API 连接状态 (点击选择模型/查看详情)"></span>
       </div>
     </div>
   </aside>
@@ -153,6 +153,24 @@
           </div>
           <button onclick="clearSelectedFile()" class="p-1.5 rounded opacity-60 hover:opacity-100 hover:text-rose-400 transition" title="重新选择文件">
             <i class="ph ph-trash text-base"></i>
+          </button>
+        </div>
+
+        <!-- 🤖 当前 AI 模型与快速切换条 (根据已配置 API 提供模型切换入口) -->
+        <div class="mt-4 p-3 rounded-xl border flex items-center justify-between" style="background-color: var(--bg-card-subtle); border-color: var(--border-subtle);">
+          <div class="flex items-center gap-2.5">
+            <div class="w-6 h-6 rounded-md flex items-center justify-center text-xs text-white shadow-sm flex-shrink-0" style="background-color: var(--accent-primary);">
+              <i class="ph ph-cpu"></i>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-medium" style="color: var(--text-secondary);">当前推理模型:</span>
+              <span id="trans-active-model-name" class="text-xs font-mono font-semibold" style="color: var(--accent-primary);">deepseek-chat</span>
+              <span id="trans-model-status-badge" class="text-[9px] font-mono px-1.5 py-0.5 rounded font-medium" style="background: var(--badge-bg); color: var(--badge-text);">已就绪</span>
+            </div>
+          </div>
+          <button type="button" onclick="openModelSelectionModal()" class="px-3 py-1.5 rounded-lg text-xs font-medium border btn-secondary transition flex items-center gap-1.5 group" title="根据已配置 API 选择或切换模型">
+            <i class="ph ph-arrows-clockwise text-xs transition-transform duration-300 group-hover:rotate-180" style="color: var(--accent-primary);"></i>
+            <span>选择 / 切换模型</span>
           </button>
         </div>
 
@@ -359,7 +377,7 @@
           </button>
         </div>
 
-        <!-- 模块 1: 🤖 大模型与翻译 API 接口配置 -->
+        <!-- 模块 1: 🤖 大模型与翻译 API 接口配置 (v1.2.6: 取消预设平台，配置 URL 与 Key 后动态选择模型) -->
         <div class="app-card p-5 space-y-4">
           <div class="flex items-center justify-between border-b pb-3" style="border-color: var(--border-subtle);">
             <div class="flex items-center gap-2">
@@ -368,54 +386,89 @@
               </div>
               <div>
                 <h4 class="text-xs font-semibold" style="color: var(--text-primary);">大模型与翻译 API 接口配置</h4>
-                <p class="text-[11px]" style="color: var(--text-secondary);">支持标准 OpenAI 兼容接口、官方平台直接鉴权与私有化本地服务</p>
+                <p class="text-[11px]" style="color: var(--text-secondary);">配置 API 接口地址与鉴权密钥，系统将自动探测并提供模型选择入口</p>
               </div>
             </div>
             <span class="text-[10px] font-mono px-2 py-0.5 rounded font-medium" style="background: var(--accent-subtle); color: var(--accent-primary);">OpenAI 兼容协议</span>
           </div>
 
-          <!-- 预设模型平台选择 -->
-          <div>
-            <label class="block text-xs font-medium mb-1.5" style="color: var(--text-secondary);">模型服务商预设平台</label>
-            <select id="settings-provider-select" onchange="handleProviderPresetChange(this.value)" class="w-full rounded-lg px-3 py-2 text-xs font-medium border app-input">
-              <option value="deepseek">DeepSeek 官方平台 (推荐 · 极高性价比与制造业理解力)</option>
-              <option value="gemini">Google Gemini 官方平台 (默认推荐 gemini-3.8-flash · 极高推理速度)</option>
-              <option value="siliconflow">硅基流动 (SiliconFlow) - DeepSeek-V3 / R1</option>
-              <option value="dashscope">阿里云百炼 (DashScope) - DeepSeek-V3 / 通义千问</option>
-              <option value="zhipu">智谱开放平台 (GLM-4-Flash 免费高可用)</option>
-              <option value="moonshot">月之暗面 (Moonshot / Kimi)</option>
-              <option value="openai">OpenAI 官方 (GPT-4o / GPT-4o-mini)</option>
-              <option value="ollama">本地离线 Ollama (无需 Key / 内网专用)</option>
-              <option value="custom">自定义兼容接口 / OneAPI / 局域网网关</option>
-            </select>
-            <p id="settings-preset-tip" class="text-[11px] mt-1.5 font-mono opacity-75" style="color: var(--accent-primary);">DeepSeek 官方开放平台 (推荐，高性价比，制造业理解力极佳)</p>
-          </div>
-
-          <!-- API Key 输入框 -->
-          <div>
-            <label class="block text-xs font-medium mb-1.5" style="color: var(--text-secondary);">API Key 密钥</label>
-            <div class="flex gap-2.5">
-              <div class="relative flex-1">
-                <input type="password" id="settings-api-key" placeholder="填入 sk- 开头的 API Key 密钥" class="w-full rounded-lg pl-3 pr-8 py-2 text-xs font-mono border app-input">
+          <!-- API URL 与 API Key 输入框 (取消预设平台，仅输入 URL 与 Key) -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <div class="flex items-center justify-between mb-1.5">
+                <label class="block text-xs font-medium" style="color: var(--text-secondary);">API 接口地址 (URL)</label>
+                <span class="text-[10px] font-mono opacity-60" style="color: var(--text-secondary);">必填项</span>
+              </div>
+              <input type="text" id="settings-base-url" value="https://api.deepseek.com/v1" placeholder="例如: https://api.deepseek.com/v1 或 http://localhost:11434/v1" class="w-full rounded-lg px-3 py-2 text-xs font-mono border app-input">
+              <p class="text-[11px] mt-1.5 opacity-70" style="color: var(--text-secondary);">支持 DeepSeek, Gemini, OpenAI, 硅基流动, 阿里云百炼, Ollama 等兼容端点</p>
+            </div>
+            <div>
+              <div class="flex items-center justify-between mb-1.5">
+                <label class="block text-xs font-medium" style="color: var(--text-secondary);">API Key 密钥</label>
+                <span class="text-[10px] font-mono opacity-60" style="color: var(--text-secondary);">本地离线服务可留空</span>
+              </div>
+              <div class="relative">
+                <input type="password" id="settings-api-key" placeholder="填入 API Key 密钥 (如 sk-... 或 AIzaSy...)" class="w-full rounded-lg pl-3 pr-8 py-2 text-xs font-mono border app-input">
                 <button type="button" onclick="toggleApiKeyVisibility()" class="absolute right-2.5 top-2 opacity-50 hover:opacity-100 transition" title="显示/隐藏密钥">
                   <i id="toggle-key-icon" class="ph ph-eye text-sm"></i>
                 </button>
               </div>
-              <button id="btn-test-conn" onclick="testApiConnection()" class="px-4 py-2 rounded-lg text-xs font-medium border transition flex items-center gap-1.5 btn-secondary flex-shrink-0">
+              <p class="text-[11px] mt-1.5 opacity-70" style="color: var(--text-secondary);">密钥保存在本地数据库中，用于双语翻译并发推理鉴权</p>
+            </div>
+          </div>
+
+          <!-- API 动作栏 (拉取可用模型与连通性测试) -->
+          <div class="flex items-center justify-between pt-2 border-t" style="border-color: var(--border-subtle);">
+            <div class="flex items-center gap-2">
+              <span id="api-conn-status-indicator" class="inline-flex items-center gap-1.5 text-[11px] font-medium" style="color: var(--text-secondary);">
+                <span class="w-2 h-2 rounded-full bg-slate-400"></span> 待拉取模型
+              </span>
+            </div>
+            <div class="flex items-center gap-2">
+              <button id="btn-fetch-models" onclick="fetchModelsFromApi(false)" class="px-3.5 py-1.5 rounded-lg text-xs font-medium border transition flex items-center gap-1.5 btn-secondary flex-shrink-0" title="向 API 发起请求，自动拉取当前 Key 可访问的所有模型列表">
+                <i class="ph ph-list-magnifying-glass text-sm"></i> 获取可用模型
+              </button>
+              <button id="btn-test-conn" onclick="testApiConnection()" class="px-3.5 py-1.5 rounded-lg text-xs font-medium border transition flex items-center gap-1.5 btn-secondary flex-shrink-0">
                 <i class="ph ph-plugs-connected text-sm"></i> 测试连通性
               </button>
             </div>
           </div>
 
-          <!-- Base URL 与 Model Name -->
-          <div class="grid grid-cols-2 gap-3.5">
-            <div>
-              <label class="block text-xs font-medium mb-1.5" style="color: var(--text-secondary);">API 接口地址 (Base URL)</label>
-              <input type="text" id="settings-base-url" value="https://api.deepseek.com/v1" class="w-full rounded-lg px-3 py-2 text-xs font-mono border app-input">
+          <!-- 🎯 模型选择入口区域 (根据所配置的 API 提供入口给用户进行模型选择) -->
+          <div id="model-selection-card" class="p-4 rounded-xl border space-y-3" style="background-color: var(--bg-card-subtle); border-color: var(--border-subtle);">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <div class="w-6 h-6 rounded flex items-center justify-center text-xs text-white" style="background-color: var(--accent-primary);">
+                  <i class="ph ph-cpu"></i>
+                </div>
+                <div>
+                  <h5 class="text-xs font-semibold" style="color: var(--text-primary);">模型选择 (Model Selection)</h5>
+                  <p class="text-[11px]" style="color: var(--text-secondary);">根据上方配置的 API 接口，选取或指定要执行翻译的大模型</p>
+                </div>
+              </div>
+              <span id="model-count-badge" class="text-[10px] font-mono px-2 py-0.5 rounded font-medium" style="background: var(--badge-bg); color: var(--badge-text);">待检测</span>
             </div>
+
+            <!-- 下拉选择入口 -->
             <div>
-              <label class="block text-xs font-medium mb-1.5" style="color: var(--text-secondary);">模型名称 (Model Name)</label>
-              <input type="text" id="settings-model-name" value="deepseek-chat" class="w-full rounded-lg px-3 py-2 text-xs font-mono border app-input">
+              <label class="block text-xs font-medium mb-1.5" style="color: var(--text-secondary);">从当前 API 可用模型中选取</label>
+              <div class="flex gap-2">
+                <select id="settings-model-select" onchange="handleModelSelectChange(this.value)" class="flex-1 rounded-lg px-3 py-2 text-xs font-medium border app-input">
+                  <option value="">-- 点击上方「获取可用模型」或直接在下方手动输入 --</option>
+                </select>
+                <button type="button" onclick="testCurrentModel()" id="btn-test-model" class="px-3 py-2 rounded-lg text-xs font-medium border btn-secondary transition flex items-center gap-1 flex-shrink-0" title="校验当前选取的模型是否正常响应">
+                  <i class="ph ph-lightning text-xs"></i> 校验模型
+                </button>
+              </div>
+            </div>
+
+            <!-- 当前生效模型输入框 (支持直接微调或手动输入) -->
+            <div>
+              <div class="flex items-center justify-between mb-1">
+                <label class="block text-[11px] font-medium" style="color: var(--text-secondary);">当前生效模型名称 (支持手动微调或自由输入)</label>
+                <span class="text-[10px] font-mono opacity-60" style="color: var(--text-secondary);">文档制作将使用此模型</span>
+              </div>
+              <input type="text" id="settings-model-name" value="deepseek-chat" placeholder="如 deepseek-chat, gemini-3.8-flash, gpt-4o-mini 等" class="w-full rounded-lg px-3 py-2 text-xs font-mono border app-input">
             </div>
           </div>
         </div>
@@ -516,7 +569,7 @@
             <div>
               <div class="flex items-center gap-2">
                 <span class="font-semibold text-xs" style="color: var(--text-primary);">TransFiler 制造业文档双语智能转换系统</span>
-                <span class="text-[9px] font-mono font-medium px-1.5 py-0.5 rounded" style="background: var(--accent-subtle); color: var(--accent-primary);">v1.2.5</span>
+                <span class="text-[9px] font-mono font-medium px-1.5 py-0.5 rounded" style="background: var(--accent-subtle); color: var(--accent-primary);">v1.2.6</span>
               </div>
               <p class="text-[11px] opacity-70 mt-0.5">OpenXML & PPTX 0% 原生排版失真重构内核 • 全双向 11 种语种互译</p>
             </div>
@@ -627,6 +680,67 @@
         </button>
         <button onclick="closeExportSuccessModal()" class="px-5 py-2 text-xs font-semibold transition btn-primary">
           完成
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= 模型选择与切换全局弹窗 (Model Selection Modal) ================= -->
+  <div id="model-select-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm hidden">
+    <div class="app-card w-full max-w-lg mx-4 p-5 rounded-2xl shadow-2xl border flex flex-col max-h-[85vh] animate-scale-up" style="background-color: var(--bg-card); border-color: var(--border-subtle);">
+      <!-- 头部 -->
+      <div class="flex items-center justify-between pb-3 border-b" style="border-color: var(--border-subtle);">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg flex items-center justify-center font-bold text-white shadow-sm flex-shrink-0" style="background-color: var(--accent-primary);">
+            <i class="ph ph-cpu text-lg"></i>
+          </div>
+          <div>
+            <h3 class="text-xs font-semibold" style="color: var(--text-primary);">选择大模型 (Model Selection)</h3>
+            <p id="model-modal-endpoint-tip" class="text-[11px] font-mono opacity-70 truncate max-w-xs" style="color: var(--text-secondary);">从已配置的 API 端点选择模型</p>
+          </div>
+        </div>
+        <button type="button" onclick="closeModelSelectionModal()" class="w-7 h-7 rounded-lg flex items-center justify-center opacity-60 hover:opacity-100 hover:bg-white/10 transition" style="color: var(--text-secondary);">
+          <i class="ph ph-x text-base"></i>
+        </button>
+      </div>
+
+      <!-- 搜索过滤与操作栏 -->
+      <div class="py-3 space-y-2 border-b" style="border-color: var(--border-subtle);">
+        <div class="relative">
+          <i class="ph ph-magnifying-glass absolute left-3 top-2 text-xs opacity-50" style="color: var(--text-primary);"></i>
+          <input type="text" id="model-modal-search" oninput="filterModelModalList(this.value)" placeholder="搜索模型名称 (如 chat, v3, flash, qwen)..." class="w-full rounded-lg pl-8 pr-3 py-1.5 text-xs font-mono border app-input">
+        </div>
+        <div class="flex items-center justify-between text-[11px]">
+          <span id="model-modal-count" class="font-mono opacity-70" style="color: var(--text-secondary);">已发现 0 个模型</span>
+          <button type="button" onclick="fetchModelsFromApi(false)" class="flex items-center gap-1 font-medium hover:underline opacity-80 hover:opacity-100" style="color: var(--accent-primary);">
+            <i class="ph ph-arrows-clockwise text-xs"></i> 重新拉取列表
+          </button>
+        </div>
+      </div>
+
+      <!-- 模型列表容器 -->
+      <div id="model-modal-list" class="flex-1 overflow-y-auto py-2 space-y-1.5 min-h-[140px] max-h-[280px]">
+        <!-- 动态渲染模型卡片 -->
+      </div>
+
+      <!-- 手动输入自定义模型 -->
+      <div class="pt-3 border-t space-y-2" style="border-color: var(--border-subtle);">
+        <label class="block text-[11px] font-medium" style="color: var(--text-secondary);">自定义模型名称 (若列表中未包含)</label>
+        <div class="flex gap-2">
+          <input type="text" id="model-modal-custom-input" placeholder="输入自定义模型 ID，如 gpt-4o 或 deepseek-chat" class="flex-1 rounded-lg px-3 py-1.5 text-xs font-mono border app-input">
+          <button type="button" onclick="applyCustomModelFromModal()" class="px-3 py-1.5 rounded-lg text-xs font-semibold btn-primary transition flex-shrink-0">
+            应用此模型
+          </button>
+        </div>
+      </div>
+
+      <!-- 底部快捷跳转与关闭 -->
+      <div class="pt-3 flex justify-between items-center text-[11px]" style="color: var(--text-secondary);">
+        <a href="javascript:void(0)" onclick="closeModelSelectionModal(); switchTab('settings');" class="hover:underline flex items-center gap-1" style="color: var(--accent-primary);">
+          <i class="ph ph-gear text-xs"></i> 前往 API 接口与密钥设置
+        </a>
+        <button type="button" onclick="closeModelSelectionModal()" class="px-3 py-1 rounded-lg border btn-secondary text-xs">
+          关闭
         </button>
       </div>
     </div>

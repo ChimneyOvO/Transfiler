@@ -93,6 +93,127 @@ class LLMTranslator:
             async with httpx.AsyncClient(timeout=timeout, follow_redirects=True, verify=False, trust_env=True) as client:
                 return await client.post(url, headers=headers, json=payload)
 
+    async def _get_request(self, endpoint_url: str, timeout: float = 15.0) -> httpx.Response:
+        """带 SSL 自动降级和多环境兼容的 GET 请求"""
+        headers = self._get_headers()
+        try:
+            async with httpx.AsyncClient(timeout=timeout, follow_redirects=True, trust_env=True) as client:
+                return await client.get(endpoint_url, headers=headers)
+        except (httpx.ConnectError, httpx.SecurityError, Exception) as e:
+            async with httpx.AsyncClient(timeout=timeout, follow_redirects=True, verify=False, trust_env=True) as client:
+                return await client.get(endpoint_url, headers=headers)
+
+    async def fetch_models(self) -> Dict[str, Any]:
+        """从配置的 API Base URL 拉取模型列表 (支持标准 OpenAI /models 以及各类兼容接口)"""
+        if not self.base_url:
+            return {
+                "success": False,
+                "message": "未配置 API 接口地址 (Base URL)",
+                "models": []
+            }
+
+        url = f"{self.base_url}/models"
+        try:
+            resp = await self._get_request(url, timeout=15.0)
+
+            # 如果 /models 报 404 且类似 Ollama 本地服务，尝试 /api/tags
+            if resp.status_code == 404 and (":11434" in self.base_url or "localhost" in self.base_url or "127.0.0.1" in self.base_url):
+                base_host = self.base_url.replace("/v1", "").rstrip("/")
+                resp_ollama = await self._get_request(f"{base_host}/api/tags", timeout=10.0)
+                if resp_ollama.status_code == 200:
+                    resp = resp_ollama
+
+            if resp.status_code == 200:
+                try:
+                    data_json = resp.json()
+                except Exception:
+                    return {
+                        "success": False,
+                        "message": "API 返回了非 JSON 格式的内容",
+                        "models": []
+                    }
+
+                raw_list = []
+                if isinstance(data_json, list):
+                    raw_list = data_json
+                elif isinstance(data_json, dict):
+                    if "data" in data_json and isinstance(data_json["data"], list):
+                        raw_list = data_json["data"]
+                    elif "models" in data_json and isinstance(data_json["models"], list):
+                        raw_list = data_json["models"]
+                    elif "tags" in data_json and isinstance(data_json["tags"], list):
+                        raw_list = data_json["tags"]
+
+                parsed_models = []
+                seen_ids = set()
+                for item in raw_list:
+                    model_id = ""
+                    owned_by = ""
+                    if isinstance(item, dict):
+                        model_id = item.get("id") or item.get("name") or item.get("model") or ""
+                        owned_by = item.get("owned_by") or ""
+                    elif isinstance(item, str):
+                        model_id = item
+
+                    model_id = str(model_id).strip()
+                    if model_id and model_id not in seen_ids:
+                        seen_ids.add(model_id)
+                        parsed_models.append({
+                            "id": model_id,
+                            "name": model_id,
+                            "owned_by": owned_by
+                        })
+
+                # 排序优化：优先展示当前模型，其次常见对话模型，其余字母排序
+                parsed_models.sort(key=lambda m: (
+                    0 if m["id"] == self.model_name else 1,
+                    0 if any(k in m["id"].lower() for k in ["chat", "deepseek", "gemini", "gpt", "qwen", "glm", "claude"]) else 1,
+                    m["id"].lower()
+                ))
+
+                return {
+                    "success": True,
+                    "message": f"成功从 API 获取到 {len(parsed_models)} 个可用模型",
+                    "total": len(parsed_models),
+                    "models": parsed_models,
+                    "current_model": self.model_name,
+                    "base_url": self.base_url
+                }
+
+            # 非 200 处理
+            status = resp.status_code
+            err_text = resp.text[:200]
+            try:
+                err_text = resp.json().get("error", {}).get("message", err_text)
+            except Exception:
+                pass
+
+            if status == 401:
+                return {
+                    "success": False,
+                    "message": f"API 认证失败 (401 Unauthorized)：请检查 API Key 是否正确。\n{err_text}",
+                    "models": []
+                }
+            elif status == 404:
+                return {
+                    "success": False,
+                    "message": f"接口返回 404 (端点 {url} 不存在)。该服务商可能未开放 /models 路由，您可直接手动输入模型名称。",
+                    "models": []
+                }
+            else:
+                return {
+                    "success": False,
+                    "message": f"拉取模型列表失败 (HTTP {status}): {err_text}",
+                    "models": []
+                }
+
+        except Exception as e:
+            return {
+                "success": False,
+                "message": f"连接 API 获取模型异常: {str(e)}。若服务商未开放模型列表，您可直接手动输入模型名称。",
+                "models": []
+            }
+
     async def _post_request_with_retry(
         self,
         payload: Dict[str, Any],
