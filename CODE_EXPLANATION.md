@@ -57,7 +57,7 @@ TransFiler 采用经典的 **「桌面容器层 + RESTful API 调度层 + 核心
 
 ## 2. 启动引导与前后端通讯机制
 
-### 2.1 启动入口：[`run.py`](file:///c:/Users/1460902/Desktop/Transfiler/run.py)
+### 2.1 启动入口：[`run.py`](file:///C:/Users/1460902/Documents/GitHub/Mywork/Transfiler/run.py)
 `run.py` 是整个 Windows 桌面应用程序的主启动入口，实现了 **双线程自起服务 + 桌面窗口拉起 + 优雅回退**：
 
 1. **端口防冲突与多线程启动**：
@@ -67,7 +67,7 @@ TransFiler 采用经典的 **「桌面容器层 + RESTful API 调度层 + 核心
    - 首先尝试使用 `pywebview.create_window` 创建 1280x850 的独立原生桌面窗口，设置 `min_size=(1024, 700)` 保证制造业复杂表格的展示宽度；
    - 若当前 Windows 环境缺少 WebView2 运行时，自动捕获异常并通过 `webbrowser.open("http://127.0.0.1:8765")` 在默认浏览器中秒级打开，**保证 100% 启动成功率**。
 
-### 2.2 服务核心：[`backend/app.py`](file:///c:/Users/1460902/Desktop/Transfiler/backend/app.py)
+### 2.2 服务核心：[`backend/app.py`](file:///C:/Users/1460902/Documents/GitHub/Mywork/Transfiler/backend/app.py)
 - 初始化 SQLite 数据库（自动创建表及预置 20+ 条常见制造业中英术语）；
 - 挂载 4 组功能 API 路由：`api_settings`, `api_glossary`, `api_translate`, `api_history`；
 - 将 `frontend/` 目录挂载至 `/static` 静态文件路径，访问根路径 `/` 直接返回 `index.html`。
@@ -80,7 +80,7 @@ TransFiler 采用经典的 **「桌面容器层 + RESTful API 调度层 + 核心
 
 ---
 
-### 3.1 Word 高保真引擎：[`parser_docx.py`](file:///c:/Users/1460902/Desktop/Transfiler/backend/core/parser_docx.py)
+### 3.1 Word 高保真引擎：[`parser_docx.py`](file:///C:/Users/1460902/Documents/GitHub/Mywork/Transfiler/backend/core/parser_docx.py)
 
 #### (1) 结构化抽取 (`extract_content`)
 - 遍历 `doc.paragraphs` 抽取独立段落；
@@ -105,7 +105,7 @@ TransFiler 采用经典的 **「桌面容器层 + RESTful API 调度层 + 核心
 
 ---
 
-### 3.2 Excel 高保真与自适应行高引擎：[`parser_xlsx.py`](file:///c:/Users/1460902/Desktop/Transfiler/backend/core/parser_xlsx.py)
+### 3.2 Excel 高保真与自适应行高引擎：[`parser_xlsx.py`](file:///C:/Users/1460902/Documents/GitHub/Mywork/Transfiler/backend/core/parser_xlsx.py)
 
 Excel 翻译最大的难点在于：双语文字注入后，单行文字变成两行甚至多行，如果行高不变，文字就会被上下单元格遮挡。
 
@@ -137,11 +137,11 @@ if needed_height > row_heights[row_idx]:
 
 ---
 
-### 3.3 CSV 引擎：[`parser_csv.py`](file:///c:/Users/1460902/Desktop/Transfiler/backend/core/parser_csv.py)
+### 3.3 CSV 引擎：[`parser_csv.py`](file:///C:/Users/1460902/Documents/GitHub/Mywork/Transfiler/backend/core/parser_csv.py)
 - **多编码自动探测**：顺序尝试 `utf-8-sig`, `utf-8`, `gbk`, `gb2312`, `latin-1`；
 - 输出时采用带 BOM 的 `utf-8-sig` 编码，**确保用 Windows Excel 打开导出的 CSV 不会出现乱码**。
 
-### 3.4 老版 `.doc` 转换器：[`doc_converter.py`](file:///c:/Users/1460902/Desktop/Transfiler/backend/core/doc_converter.py)
+### 3.4 老版 `.doc` 转换器：[`doc_converter.py`](file:///C:/Users/1460902/Documents/GitHub/Mywork/Transfiler/backend/core/doc_converter.py)
 - 调用 Windows `win32com.client.DispatchEx("Word.Application")` 将二进制 `.doc` 无损导出为标准 `.docx`（Format Code: 16），再交由 `parser_docx` 统一处理。
 
 ---
@@ -150,7 +150,7 @@ if needed_height > row_heights[row_idx]:
 
 ---
 
-### 4.1 术语精准匹配器：[`glossary_matcher.py`](file:///c:/Users/1460902/Desktop/Transfiler/backend/core/glossary_matcher.py)
+### 4.1 术语精准匹配器：[`glossary_matcher.py`](file:///C:/Users/1460902/Documents/GitHub/Mywork/Transfiler/backend/core/glossary_matcher.py)
 
 #### (1) 最长词优先（Longest-Match-First）
 在初始化时对所有术语的中文源词按字符长度降序排列：
@@ -170,7 +170,7 @@ def build_prompt_constraint(self, matched_terms):
 
 ---
 
-### 4.2 异步并发翻译调度器：[`translator.py`](file:///c:/Users/1460902/Desktop/Transfiler/backend/core/translator.py)
+### 4.2 异步并发翻译调度器：[`translator.py`](file:///C:/Users/1460902/Documents/GitHub/Mywork/Transfiler/backend/core/translator.py)
 
 #### (1) 批处理切片与 JSON 结构化交互
 - 每次将 20 条段落/单元格合并为一个请求，降低网络往返延迟与 Token 消耗；
@@ -183,7 +183,7 @@ def build_prompt_constraint(self, matched_terms):
 
 ## 5. 数据持久化与草稿暂存工作流 (`database.py`)
 
-系统采用本地 SQLite 数据库 [`transfiler.db`](file:///c:/Users/1460902/Desktop/Transfiler/data/transfiler.db)，设计了 4 张专用数据表：
+系统采用本地 SQLite 数据库 [`transfiler.db`](file:///C:/Users/1460902/Documents/GitHub/Mywork/Transfiler/data/transfiler.db)，设计了 4 张专用数据表：
 
 ```mermaid
 erDiagram
@@ -240,7 +240,7 @@ erDiagram
 
 ## 7. 前端桌面工作台与双栏校对交互
 
-前端位于 [`frontend/`](file:///c:/Users/1460902/Desktop/Transfiler/frontend/)，采用无打包依赖的现代原生 JavaScript 模块化设计：
+前端位于 [`frontend/`](file:///C:/Users/1460902/Documents/GitHub/Mywork/Transfiler/frontend/)，采用无打包依赖的现代原生 JavaScript 模块化设计：
 
 ```
 frontend/
@@ -255,7 +255,7 @@ frontend/
     └── view_history.js         # 历史记录列表渲染与文件定位
 ```
 
-### 核心亮点：双栏联动校对工作台 ([`view_diff.js`](file:///c:/Users/1460902/Desktop/Transfiler/frontend/js/view_diff.js))
+### 核心亮点：双栏联动校对工作台 ([`view_diff.js`](file:///C:/Users/1460902/Documents/GitHub/Mywork/Transfiler/frontend/js/view_diff.js))
 - **卡片式排版**：左侧为原始中文（只读），右侧为「上中下外」结构；
 - **即时编辑绑定**：
   ```javascript
