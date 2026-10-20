@@ -130,7 +130,7 @@ async function handleFileSelect(file) {
       const countEl = document.getElementById('file-card-items-count');
       if (countEl) countEl.innerText = `${json.total_items} 项`;
 
-      showToast(`文档解析成功，共提取 ${json.total_items} 项待翻译内容`, 'success');
+      showToast(`解析成功，共 ${json.total_items} 项`, 'success');
     } else {
       showToast(json.detail || '解析文件失败', 'error');
     }
@@ -229,7 +229,7 @@ async function startTranslationProcess() {
       AppState.currentTask.glossary_hit_count = json.glossary_hit_count;
       AppState.currentTask.cost_time = json.cost_time;
 
-      showToast(`制作完成！耗时 ${json.cost_time} 秒，命中 ${json.glossary_hit_count} 处工艺术语`, 'success');
+      showToast(`制作完成 (${json.cost_time}s)`, 'success');
 
       // 更新右侧 Diff 工作台徽章
       const diffBadge = document.getElementById('diff-badge');

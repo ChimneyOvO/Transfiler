@@ -17,7 +17,7 @@ function renderHistoryTable(tasks) {
   if (!tasks || tasks.length === 0) {
     tbody.innerHTML = `
       <tr>
-        <td colspan="5" class="p-8 text-center opacity-40 text-xs font-mono">暂无已制作的双语文件历史</td>
+        <td colspan="5" class="p-8 text-center opacity-40 text-xs font-mono">暂无历史记录</td>
       </tr>
     `;
     return;
@@ -41,7 +41,7 @@ function renderHistoryTable(tasks) {
         <td class="p-3 font-mono text-[11px] opacity-50">${timeStr}</td>
         <td class="p-3 text-right">
           <button onclick="openFolderInExplorer('${escapeJs(t.export_path)}')" class="px-2.5 py-1 text-xs font-medium border transition flex items-center gap-1 ml-auto btn-secondary">
-            <i class="ph ph-folder-open text-xs"></i> 打开位置
+            <i class="ph ph-folder-open text-xs"></i> 打开
           </button>
         </td>
       </tr>

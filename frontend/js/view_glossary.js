@@ -33,7 +33,7 @@ function renderGlossaryTable(terms) {
   if (!terms || terms.length === 0) {
     tbody.innerHTML = `
       <tr>
-        <td colspan="5" class="p-8 text-center opacity-40 text-xs font-mono">暂无匹配的制造业专有术语词条</td>
+        <td colspan="5" class="p-8 text-center opacity-40 text-xs font-mono">暂无术语</td>
       </tr>
     `;
     return;
@@ -84,7 +84,7 @@ function openGlossaryModal(termId = null, defaultSource = '', defaultTarget = ''
   if (termId) {
     const term = currentGlossaryData.find(t => t.id === termId);
     if (term) {
-      title.innerText = '编辑专有术语词条';
+      title.innerText = '编辑术语';
       inputId.value = term.id;
       inputSource.value = term.source_term;
       inputTarget.value = term.target_term;
@@ -92,7 +92,7 @@ function openGlossaryModal(termId = null, defaultSource = '', defaultTarget = ''
       inputCat.value = term.category || '通用';
     }
   } else {
-    title.innerText = '新建专有术语词条';
+    title.innerText = '新建术语';
     inputId.value = '';
     inputSource.value = defaultSource;
     inputTarget.value = defaultTarget;

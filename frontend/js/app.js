@@ -37,19 +37,31 @@ function applySidebarCollapse(collapsed) {
   const sidebar = document.getElementById('app-sidebar');
   const toggleIcon = document.getElementById('sidebar-toggle-icon');
   const toggleBtn = document.getElementById('sidebar-toggle-btn');
+  const logoIcon = document.querySelector('.sidebar-logo-icon');
   if (!sidebar) return;
 
   if (collapsed) {
     sidebar.classList.add('sidebar-collapsed');
-    if (toggleIcon) toggleIcon.className = 'ph ph-caret-right text-sm';
-    if (toggleBtn) toggleBtn.title = '展开功能栏';
+    if (toggleIcon) toggleIcon.className = 'ph ph-caret-right text-xs';
+    if (toggleBtn) toggleBtn.title = '展开导航栏';
+    if (logoIcon) logoIcon.title = '点击展开导航栏';
   } else {
     sidebar.classList.remove('sidebar-collapsed');
     if (toggleIcon) toggleIcon.className = 'ph ph-caret-left text-sm';
-    if (toggleBtn) toggleBtn.title = '收起功能栏';
+    if (toggleBtn) toggleBtn.title = '收起导航栏';
+    if (logoIcon) logoIcon.title = 'TransFiler';
   }
 
   localStorage.setItem('transfiler_sidebar_collapsed', collapsed ? 'true' : 'false');
+}
+
+function handleBrandClick() {
+  const sidebar = document.getElementById('app-sidebar');
+  if (sidebar && sidebar.classList.contains('sidebar-collapsed')) {
+    applySidebarCollapse(false);
+  } else {
+    switchTab('translate');
+  }
 }
 
 // --- 双主题切换引擎 (Dark / Light) 记忆持久化 ---
@@ -109,11 +121,11 @@ function applyTheme(themeKey, showNotice = true) {
 function switchTab(tab) {
   const tabs = ['translate', 'diff', 'glossary', 'settings', 'history'];
   const titles = {
-    translate: '新建双语文档制作',
-    diff: '双栏校对与排版检查',
-    glossary: '制造业专有术语词典管理',
-    settings: '系统设置与环境配置',
-    history: '双语文件交付历史'
+    translate: '文档制作',
+    diff: '双栏校对',
+    glossary: '专有术语库',
+    settings: '系统设置',
+    history: '交付历史'
   };
 
   const breadcrumbs = {
@@ -245,27 +257,27 @@ function updateEngineStatusUI(result) {
     if (dot) dot.className = "w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]";
     if (dotCompact) {
       dotCompact.className = "w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)] ring-2 ring-emerald-500/20";
-      dotCompact.title = `API 在线: ${result.model_name || '大模型'} 引擎 (点击切换模型)`;
+      dotCompact.title = `${result.model_name || '大模型'} (点击切换)`;
     }
-    if (text) text.innerText = `${result.model_name || 'DeepSeek'} 引擎`;
+    if (text) text.innerText = `${result.model_name || '大模型'}`;
     if (badge) {
       badge.className = "text-[9px] font-mono px-1.5 py-0.5 rounded font-medium";
       badge.style.background = "var(--badge-highlight-bg)";
       badge.style.color = "var(--badge-highlight-text)";
       badge.innerText = "在线";
     }
-    if (container) container.title = `${result.message || 'API 连通正常'} (点击选择模型 / 切换)`;
+    if (container) container.title = "切换模型";
     if (transModelBadge) {
-      transModelBadge.innerText = "在线 ✔";
+      transModelBadge.innerText = "在线";
       transModelBadge.style.color = "#34d399";
     }
   } else if (result.status === 'unconfigured') {
     if (dot) dot.className = "w-2 h-2 rounded-full bg-amber-400";
     if (dotCompact) {
       dotCompact.className = "w-2.5 h-2.5 rounded-full bg-amber-400 ring-2 ring-amber-500/20";
-      dotCompact.title = "本地模拟模式 (未配置 API Key)";
+      dotCompact.title = "未配置 API Key";
     }
-    if (text) text.innerText = "本地模拟模式";
+    if (text) text.innerText = "本地模拟";
     if (badge) {
       badge.className = "text-[9px] font-mono px-1.5 py-0.5 rounded font-medium";
       badge.style.background = "rgba(251, 191, 36, 0.15)";
@@ -377,7 +389,7 @@ async function updateSidebarGlossaryCount() {
     if (json.status === 'success') {
       const countElem = document.getElementById('sidebar-glossary-count');
       if (countElem) {
-        countElem.innerText = `术语库：${json.total} 词条`;
+        countElem.innerText = `${json.total} 术语`;
       }
     }
   } catch (err) {

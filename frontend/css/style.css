@@ -119,6 +119,8 @@ h1, h2, h3, h4 {
 
 /* --- 3. 导航与侧边栏 (Sidebar & Navigation) --- */
 aside#app-sidebar {
+  position: relative;
+  overflow: visible !important;
   transition: width 0.22s cubic-bezier(0.16, 1, 0.3, 1), min-width 0.22s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -132,9 +134,50 @@ aside#app-sidebar {
 }
 
 .sidebar-collapsed .sidebar-logo-container {
-  padding-left: 0.5rem !important;
-  padding-right: 0.5rem !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
   justify-content: center !important;
+  position: relative !important;
+}
+
+.sidebar-collapsed .sidebar-brand {
+  width: 100% !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  overflow: visible !important;
+  gap: 0 !important;
+}
+
+.sidebar-collapsed .sidebar-logo-icon {
+  margin: 0 auto !important;
+}
+
+.sidebar-collapsed #sidebar-toggle-btn {
+  position: absolute !important;
+  right: -10px !important;
+  top: 17px !important;
+  width: 20px !important;
+  height: 20px !important;
+  border-radius: 9999px !important;
+  background-color: var(--bg-card) !important;
+  border: 1px solid var(--border-subtle) !important;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2) !important;
+  z-index: 35 !important;
+  opacity: 0.85 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 !important;
+  color: var(--text-secondary) !important;
+}
+
+.sidebar-collapsed #sidebar-toggle-btn:hover {
+  opacity: 1 !important;
+  background-color: var(--accent-primary) !important;
+  color: #ffffff !important;
+  border-color: var(--accent-primary) !important;
+  transform: scale(1.1);
 }
 
 .sidebar-collapsed .nav-item {

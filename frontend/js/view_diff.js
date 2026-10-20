@@ -16,22 +16,22 @@ function renderDiffWorkspace() {
     <span class="ml-1 opacity-70">(${srcLang} &rarr; ${tgtLang})</span>
   `;
   document.getElementById('diff-stats').innerHTML = `
-    <i class="ph ph-check-circle"></i> 已就绪 (${task.items.length} 单元 / 命中 ${task.glossary_hit_count || 0} 术语)
+    <i class="ph ph-check-circle"></i> ${task.items.length} 单元
   `;
 
   // 动态更新左右栏标题
   const leftTitleEl = document.getElementById('diff-left-title');
   const rightTitleEl = document.getElementById('diff-right-title');
   if (leftTitleEl) {
-    leftTitleEl.innerText = `源语言文档 (${srcLang}) (只读参考)`;
+    leftTitleEl.innerText = `源文档 (${srcLang})`;
   }
   if (rightTitleEl) {
     if (layoutMode === 'zh_bottom') {
-      rightTitleEl.innerText = `双语输出与校准 (中文在下 · 外文在上)`;
+      rightTitleEl.innerText = `双语 (中文在下)`;
     } else if (layoutMode === 'replace') {
-      rightTitleEl.innerText = `单语输出与校准 (${tgtLang} 替换)`;
+      rightTitleEl.innerText = `单语 (${tgtLang})`;
     } else {
-      rightTitleEl.innerText = `双语输出与校准 (中文在上 · 外文在下)`;
+      rightTitleEl.innerText = `双语 (中文在上)`;
     }
   }
 
@@ -82,7 +82,7 @@ function renderDiffWorkspace() {
               rows="2" 
               onblur="handleItemTextUpdate('${item.id}', this.value)"
               class="w-full rounded-lg px-2.5 py-1.5 text-xs leading-relaxed resize-y app-input font-mono"
-              placeholder="输入校正后的外文翻译..."
+              placeholder="输入译文..."
             >${escapeHtml(item.target_text || '')}</textarea>
           </div>
           <div class="text-xs font-semibold leading-relaxed opacity-80" style="color: var(--text-primary);">${escapeHtml(item.source_text)}</div>
@@ -96,7 +96,7 @@ function renderDiffWorkspace() {
               rows="2" 
               onblur="handleItemTextUpdate('${item.id}', this.value)"
               class="w-full rounded-lg px-2.5 py-1.5 text-xs leading-relaxed resize-y app-input font-mono"
-              placeholder="输入校正后的中文翻译..."
+              placeholder="输入译文..."
             >${escapeHtml(item.target_text || '')}</textarea>
           </div>
         `;
@@ -109,7 +109,7 @@ function renderDiffWorkspace() {
             rows="2" 
             onblur="handleItemTextUpdate('${item.id}', this.value)"
             class="w-full rounded-lg px-2.5 py-1.5 text-xs leading-relaxed resize-y app-input font-mono"
-            placeholder="输入目标语言译文..."
+            placeholder="输入译文..."
           >${escapeHtml(item.target_text || '')}</textarea>
         </div>
       `;
@@ -124,7 +124,7 @@ function renderDiffWorkspace() {
               rows="2" 
               onblur="handleItemTextUpdate('${item.id}', this.value)"
               class="w-full rounded-lg px-2.5 py-1.5 text-xs leading-relaxed resize-y app-input font-mono"
-              placeholder="输入校正后的外文翻译..."
+              placeholder="输入译文..."
             >${escapeHtml(item.target_text || '')}</textarea>
           </div>
         `;
@@ -136,7 +136,7 @@ function renderDiffWorkspace() {
               rows="2" 
               onblur="handleItemTextUpdate('${item.id}', this.value)"
               class="w-full rounded-lg px-2.5 py-1.5 text-xs leading-relaxed resize-y app-input font-mono"
-              placeholder="输入校正后的中文翻译..."
+              placeholder="输入译文..."
             >${escapeHtml(item.target_text || '')}</textarea>
           </div>
           <div class="text-xs font-semibold leading-relaxed opacity-80" style="color: var(--text-primary);">${escapeHtml(item.source_text)}</div>

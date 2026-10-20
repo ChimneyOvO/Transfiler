@@ -109,13 +109,13 @@ async function fetchModelsFromApi(silent = false) {
 
       // 更新徽章状态
       if (badge) {
-        badge.innerText = `已发现 ${count} 个模型`;
+        badge.innerText = `${count} 个模型`;
         badge.style.background = 'var(--badge-highlight-bg)';
         badge.style.color = 'var(--badge-highlight-text)';
       }
 
       if (indicator) {
-        indicator.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-400"></span> API 连通正常 · 可用模型 ${count} 个`;
+        indicator.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-400"></span> ${count} 个可用模型`;
       }
 
       // 若模型弹窗处于开启状态，同步刷新弹窗内部列表
@@ -449,11 +449,11 @@ function renderModelModalList(models) {
         您可以点击右上角「重新拉取」，或在下方直接输入模型名称使用。
       </div>
     `;
-    if (countSpan) countSpan.innerText = '已发现 0 个模型';
+    if (countSpan) countSpan.innerText = '0 个模型';
     return;
   }
 
-  if (countSpan) countSpan.innerText = `已发现 ${models.length} 个模型`;
+  if (countSpan) countSpan.innerText = `${models.length} 个模型`;
 
   container.innerHTML = '';
   models.forEach(m => {
@@ -478,8 +478,8 @@ function renderModelModalList(models) {
       </div>
       <div class="flex-shrink-0">
         ${isSelected 
-          ? `<span class="text-[9px] font-mono px-1.5 py-0.5 rounded font-semibold" style="background: var(--accent-primary); color: #fff;">当前使用 ✔</span>`
-          : `<span class="text-[10px] font-mono opacity-40 hover:opacity-100" style="color: var(--text-secondary);">选取</span>`
+          ? `<span class="text-[9px] font-mono px-1.5 py-0.5 rounded font-semibold" style="background: var(--accent-primary); color: #fff;">当前</span>`
+          : `<span class="text-[10px] font-mono opacity-40 hover:opacity-100" style="color: var(--text-secondary);">选择</span>`
         }
       </div>
     `;

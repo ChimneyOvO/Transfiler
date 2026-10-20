@@ -17,9 +17,9 @@
   <aside id="app-sidebar" class="w-60 flex flex-col justify-between flex-shrink-0 z-20" style="background-color: var(--bg-sidebar); border-right: 1px solid var(--border-subtle);">
     <div>
       <!-- 品牌 Logo 与折叠按钮 -->
-      <div class="h-14 flex items-center px-4 justify-between sidebar-logo-container" style="border-bottom: 1px solid var(--border-subtle);">
-        <div class="flex items-center gap-2.5 overflow-hidden">
-          <div class="w-8 h-8 rounded-lg flex items-center justify-center font-bold text-white shadow-sm flex-shrink-0" style="background-color: var(--accent-primary);">
+      <div class="h-14 flex items-center px-4 justify-between sidebar-logo-container relative" style="border-bottom: 1px solid var(--border-subtle);">
+        <div class="sidebar-brand flex items-center gap-2.5 overflow-hidden">
+          <div class="sidebar-logo-icon w-8 h-8 rounded-lg flex items-center justify-center font-bold text-white shadow-sm flex-shrink-0 cursor-pointer" style="background-color: var(--accent-primary);" title="TransFiler" onclick="handleBrandClick()">
             <i class="ph ph-translate text-lg"></i>
           </div>
           <div class="sidebar-text-collapsible overflow-hidden whitespace-nowrap">
@@ -27,11 +27,10 @@
               <h1 class="font-bold text-xs tracking-tight leading-none" style="color: var(--text-primary);">TransFiler</h1>
               <span class="text-[9px] font-mono font-medium px-1 py-0.5 rounded" style="background: var(--accent-subtle); color: var(--accent-primary);">v1.2.6</span>
             </div>
-            <p class="text-[10px] opacity-60 mt-0.5 truncate" style="color: var(--text-secondary);">制造业多语种双语系统</p>
           </div>
         </div>
         <!-- 折叠/打开功能栏切换按钮 -->
-        <button id="sidebar-toggle-btn" onclick="toggleSidebar()" class="w-7 h-7 rounded-lg flex items-center justify-center opacity-60 hover:opacity-100 hover:bg-white/10 transition flex-shrink-0" title="收起 / 展开功能栏" style="color: var(--text-secondary);">
+        <button id="sidebar-toggle-btn" onclick="toggleSidebar()" class="w-7 h-7 rounded-lg flex items-center justify-center opacity-60 hover:opacity-100 hover:bg-white/10 transition flex-shrink-0" title="收起导航栏" style="color: var(--text-secondary);">
           <i id="sidebar-toggle-icon" class="ph ph-caret-left text-sm"></i>
         </button>
       </div>
@@ -63,24 +62,24 @@
     </div>
 
     <!-- 底部状态指示 (展开/折叠双态) -->
-    <div id="engine-status-container" onclick="openModelSelectionModal()" class="sidebar-status-card p-3 m-2 rounded-lg border text-xs cursor-pointer hover:border-blue-500/40 transition group" style="background-color: var(--bg-card-subtle); border-color: var(--border-subtle);" title="点击根据已配置 API 选择模型或管理设置">
+    <div id="engine-status-container" onclick="openModelSelectionModal()" class="sidebar-status-card p-3 m-2 rounded-lg border text-xs cursor-pointer hover:border-blue-500/40 transition group" style="background-color: var(--bg-card-subtle); border-color: var(--border-subtle);" title="切换模型">
       <!-- 展开态状态显示 -->
       <div class="sidebar-status-full">
-        <div class="flex items-center justify-between mb-1.5">
+        <div class="flex items-center justify-between mb-1">
           <span class="font-medium flex items-center gap-1.5 text-[11px]" style="color: var(--text-primary);">
             <span id="engine-status-dot" class="w-2 h-2 rounded-full bg-slate-400 flex-shrink-0"></span>
-            <span id="engine-status-text" class="truncate">检测 API 连接...</span>
+            <span id="engine-status-text" class="truncate font-mono">模型检测中</span>
           </span>
           <span id="engine-status-badge" class="text-[9px] font-mono px-1.5 py-0.5 rounded font-medium flex-shrink-0" style="background: var(--badge-bg); color: var(--badge-text);">检测中</span>
         </div>
         <div class="text-[10px] flex justify-between font-mono" style="color: var(--text-muted);">
-          <span id="sidebar-glossary-count" class="truncate">术语库：加载中...</span>
-          <span class="opacity-70 group-hover:opacity-100 group-hover:text-blue-400 transition flex-shrink-0">切换模型 &rarr;</span>
+          <span id="sidebar-glossary-count" class="truncate">0 术语</span>
+          <span class="opacity-60 group-hover:opacity-100 transition flex-shrink-0">切换 &rarr;</span>
         </div>
       </div>
       <!-- 折叠态极简状态显示 -->
       <div class="sidebar-status-compact hidden items-center justify-center py-1">
-        <span id="engine-status-dot-compact" class="w-2.5 h-2.5 rounded-full bg-slate-400 ring-2 ring-blue-500/20" title="API 连接状态 (点击选择模型/查看详情)"></span>
+        <span id="engine-status-dot-compact" class="w-2.5 h-2.5 rounded-full bg-slate-400 ring-2 ring-blue-500/20" title="API 状态"></span>
       </div>
     </div>
   </aside>
@@ -90,29 +89,18 @@
     
     <!-- 顶部状态栏 -->
     <header class="h-14 flex items-center justify-between px-6 z-10 flex-shrink-0 backdrop-blur-md" style="background-color: var(--bg-header); border-bottom: 1px solid var(--border-subtle);">
-      <div class="flex items-center gap-3">
-        <div class="flex items-center gap-1.5 text-xs font-medium" style="color: var(--text-muted);">
-          <span>TransFiler</span>
-          <span class="opacity-40">/</span>
-          <span style="color: var(--text-primary);" id="page-breadcrumb">文档制作</span>
-        </div>
-        <div class="h-3 w-px" style="background-color: var(--border-subtle);"></div>
-        <h2 id="page-title" class="text-xs font-semibold" style="color: var(--text-primary);">新建双语文档制作</h2>
+      <div class="flex items-center gap-2 text-xs font-medium" style="color: var(--text-muted);">
+        <span>TransFiler</span>
+        <span class="opacity-40">/</span>
+        <span style="color: var(--text-primary);" id="page-breadcrumb">文档制作</span>
+        <h2 id="page-title" class="hidden">文档制作</h2>
       </div>
 
-      <div class="flex items-center gap-4">
-        <!-- 排版规范提示 -->
-        <div class="flex items-center gap-2 text-xs hidden md:flex" style="color: var(--text-secondary);">
-          <span class="app-badge" id="top-rule-badge"><i class="ph ph-rows"></i> 排版：中文在上 / 下自选</span>
-          <span class="app-badge"><i class="ph ph-shield-check"></i> 原生排版 100% 还原</span>
-        </div>
-
-        <div class="h-3.5 w-px" style="background-color: var(--border-subtle);"></div>
-
-        <!-- 双主题切换器 (Dark / Light Toggle) -->
-        <button id="btn-theme-toggle" onclick="toggleTheme()" class="px-3 py-1.5 rounded-lg border text-xs font-medium flex items-center gap-1.5 btn-secondary" title="切换深色/浅色主题">
+      <div class="flex items-center gap-3">
+        <!-- 主题切换 -->
+        <button id="btn-theme-toggle" onclick="toggleTheme()" class="px-2.5 py-1.5 rounded-lg border text-xs font-medium flex items-center gap-1.5 btn-secondary" title="切换主题">
           <i id="current-theme-icon" class="ph ph-moon text-sm"></i>
-          <span id="current-theme-name">深色模式</span>
+          <span id="current-theme-name" class="hidden sm:inline">深色</span>
         </button>
       </div>
     </header>
@@ -120,83 +108,77 @@
     <!-- 视图容器 -->
     <div class="flex-1 overflow-hidden relative">
 
-      <!-- ================= 视图 1: 文档制作工作台 (第一版纵向经典排版 + 高阶交互卡片) ================= -->
+      <!-- ================= 视图 1: 文档制作工作台 ================= -->
       <section id="view-translate" class="h-full p-8 overflow-y-auto max-w-4xl mx-auto w-full fade-in">
         
         <!-- 拖拽上传区域 -->
         <div id="dropzone" class="dropzone-box p-8 flex flex-col items-center justify-center text-center cursor-pointer group">
           <input type="file" id="file-input" class="hidden" accept=".docx,.xlsx,.csv,.doc,.pptx,.ppt">
-          <div class="w-14 h-14 rounded-xl flex items-center justify-center mb-3 transition-transform duration-200 group-hover:scale-105" style="background: var(--accent-subtle); color: var(--accent-primary);">
+          <div class="w-12 h-12 rounded-xl flex items-center justify-center mb-3 transition-transform duration-200 group-hover:scale-105" style="background: var(--accent-subtle); color: var(--accent-primary);">
             <i class="ph ph-upload-simple text-2xl"></i>
           </div>
-          <h3 class="text-sm font-semibold mb-1" style="color: var(--text-primary);">点击选择 或 将制造文件拖拽至此处</h3>
-          <p class="text-xs mb-4" style="color: var(--text-secondary);">支持作业指导书 (SOP)、培训课件、工艺点检表等 Word/PowerPoint/Excel/CSV 文件</p>
+          <h3 class="text-xs font-semibold mb-3" style="color: var(--text-primary);">点击或拖拽文件至此处</h3>
           
-          <div class="flex flex-wrap gap-2 justify-center">
-            <span class="app-badge"><i class="ph ph-file-doc"></i> .docx / .doc (Word)</span>
-            <span class="app-badge"><i class="ph ph-file-ppt"></i> .pptx / .ppt (PowerPoint)</span>
-            <span class="app-badge"><i class="ph ph-file-xls"></i> .xlsx (Excel 表格)</span>
-            <span class="app-badge"><i class="ph ph-file-csv"></i> .csv (数据表)</span>
+          <div class="flex flex-wrap gap-1.5 justify-center">
+            <span class="app-badge">.docx / .doc</span>
+            <span class="app-badge">.pptx / .ppt</span>
+            <span class="app-badge">.xlsx</span>
+            <span class="app-badge">.csv</span>
           </div>
         </div>
 
         <!-- 已选文件信息卡片 (上传后显示) -->
         <div id="file-card" class="mt-4 app-card p-4 border hidden flex items-center justify-between" style="border-color: var(--border-focus);">
           <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-lg flex items-center justify-center font-bold text-white flex-shrink-0 shadow-sm" style="background-color: var(--accent-primary);">
-              <i class="ph ph-file-check text-xl"></i>
+            <div class="w-9 h-9 rounded-lg flex items-center justify-center font-bold text-white flex-shrink-0 shadow-sm" style="background-color: var(--accent-primary);">
+              <i class="ph ph-file-check text-lg"></i>
             </div>
             <div>
               <h4 id="file-card-name" class="text-xs font-semibold truncate max-w-md" style="color: var(--text-primary);">未选择文件</h4>
-              <p id="file-card-info" class="text-[11px] font-mono mt-0.5" style="color: var(--text-secondary);">大小: <span id="file-card-size">0 KB</span> | 包含 <span id="file-card-items-count">0 项</span> 待翻译单元 (样式已锁定)</p>
+              <p id="file-card-info" class="text-[11px] font-mono mt-0.5" style="color: var(--text-secondary);"><span id="file-card-size">0 KB</span> · <span id="file-card-items-count">0 项</span></p>
             </div>
           </div>
-          <button onclick="clearSelectedFile()" class="p-1.5 rounded opacity-60 hover:opacity-100 hover:text-rose-400 transition" title="重新选择文件">
+          <button onclick="clearSelectedFile()" class="p-1.5 rounded opacity-60 hover:opacity-100 hover:text-rose-400 transition" title="重新选择">
             <i class="ph ph-trash text-base"></i>
           </button>
         </div>
 
-        <!-- 🤖 当前 AI 模型与快速切换条 (根据已配置 API 提供模型切换入口) -->
+        <!-- 当前 AI 模型条 -->
         <div class="mt-4 p-3 rounded-xl border flex items-center justify-between" style="background-color: var(--bg-card-subtle); border-color: var(--border-subtle);">
           <div class="flex items-center gap-2.5">
             <div class="w-6 h-6 rounded-md flex items-center justify-center text-xs text-white shadow-sm flex-shrink-0" style="background-color: var(--accent-primary);">
               <i class="ph ph-cpu"></i>
             </div>
             <div class="flex items-center gap-2">
-              <span class="text-xs font-medium" style="color: var(--text-secondary);">当前推理模型:</span>
               <span id="trans-active-model-name" class="text-xs font-mono font-semibold" style="color: var(--accent-primary);">deepseek-chat</span>
               <span id="trans-model-status-badge" class="text-[9px] font-mono px-1.5 py-0.5 rounded font-medium" style="background: var(--badge-bg); color: var(--badge-text);">已就绪</span>
             </div>
           </div>
-          <button type="button" onclick="openModelSelectionModal()" class="px-3 py-1.5 rounded-lg text-xs font-medium border btn-secondary transition flex items-center gap-1.5 group" title="根据已配置 API 选择或切换模型">
+          <button type="button" onclick="openModelSelectionModal()" class="px-3 py-1.5 rounded-lg text-xs font-medium border btn-secondary transition flex items-center gap-1.5 group" title="切换模型">
             <i class="ph ph-arrows-clockwise text-xs transition-transform duration-300 group-hover:rotate-180" style="color: var(--accent-primary);"></i>
-            <span>选择 / 切换模型</span>
+            <span>切换模型</span>
           </button>
         </div>
 
         <!-- 转换规则配置卡片 -->
-        <div class="mt-4 app-card p-6 space-y-5">
-          <h4 class="text-xs font-semibold flex items-center gap-2" style="color: var(--text-primary);">
-            <i class="ph ph-sliders text-sm" style="color: var(--accent-primary);"></i> 语言方向与排版规则设置
-          </h4>
-
+        <div class="mt-4 app-card p-6 space-y-4">
           <div class="space-y-4">
             <!-- 语言方向与一键互换 -->
             <div class="grid grid-cols-12 gap-3 items-end">
               <div class="col-span-5">
-                <label class="block text-xs font-medium mb-1.5" style="color: var(--text-secondary);">源文档语言 (Source)</label>
+                <label class="block text-xs font-medium mb-1.5" style="color: var(--text-secondary);">源语言</label>
                 <select id="source-lang-select" class="w-full rounded-lg px-3 py-2 text-xs font-medium border app-input">
                   <!-- 动态填充 -->
                 </select>
               </div>
               <div class="col-span-2 flex justify-center pb-0.5">
-                <button type="button" onclick="swapLanguages()" class="p-2 rounded-lg border btn-secondary transition flex items-center gap-1.5 text-xs group" title="点击互换源语言与目标语言">
+                <button type="button" onclick="swapLanguages()" class="p-2 rounded-lg border btn-secondary transition flex items-center gap-1 text-xs group" title="互换语言">
                   <i class="ph ph-arrows-left-right text-sm transition-transform duration-300 group-hover:rotate-180" style="color: var(--accent-primary);"></i>
                   <span class="hidden sm:inline font-medium">互换</span>
                 </button>
               </div>
               <div class="col-span-5">
-                <label class="block text-xs font-medium mb-1.5" style="color: var(--text-secondary);">目标翻译语言 (Target)</label>
+                <label class="block text-xs font-medium mb-1.5" style="color: var(--text-secondary);">目标语言</label>
                 <select id="target-lang-select" class="w-full rounded-lg px-3 py-2 text-xs font-medium border app-input">
                   <!-- 动态填充 -->
                 </select>
@@ -205,47 +187,38 @@
 
             <!-- 术语库绑定 -->
             <div>
-              <label class="block text-xs font-medium mb-1.5" style="color: var(--text-secondary);">车间专业术语库绑定</label>
+              <label class="block text-xs font-medium mb-1.5" style="color: var(--text-secondary);">专有术语库</label>
               <select id="glossary-binding-select" class="w-full rounded-lg px-3 py-2 text-xs font-medium border app-input">
-                <option value="1">启用制造业专有术语库 (强制锁定工厂专属工艺词汇) ✔️</option>
-                <option value="0">不启用专属术语库 (通用大模型直接翻译)</option>
+                <option value="1">启用术语库</option>
+                <option value="0">不启用</option>
               </select>
             </div>
 
-            <!-- 排版规则选项 (现代卡片式单选 Radio Cards) -->
+            <!-- 排版规则选项 -->
             <div>
-              <label class="block text-xs font-medium mb-1.5" style="color: var(--text-secondary);">排版规则 (中文位置)</label>
+              <label class="block text-xs font-medium mb-1.5" style="color: var(--text-secondary);">排版规则</label>
               <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                 <label class="layout-rule-card">
                   <input type="radio" name="layout_mode" value="zh_top" checked class="text-blue-600 focus:ring-0"> 
-                  <div>
-                    <div class="text-xs font-semibold" style="color: var(--text-primary);">中文在上，外文在下</div>
-                    <div class="text-[10px] font-mono opacity-60">生产车间推荐标准</div>
-                  </div>
+                  <span class="text-xs font-medium" style="color: var(--text-primary);">中文在上，外文在下</span>
                 </label>
                 <label class="layout-rule-card">
                   <input type="radio" name="layout_mode" value="zh_bottom" class="text-blue-600 focus:ring-0"> 
-                  <div>
-                    <div class="text-xs font-semibold" style="color: var(--text-primary);">中文在下，外文在上</div>
-                    <div class="text-[10px] font-mono opacity-60">海外工厂/合资标准</div>
-                  </div>
+                  <span class="text-xs font-medium" style="color: var(--text-primary);">中文在下，外文在上</span>
                 </label>
                 <label class="layout-rule-card">
                   <input type="radio" name="layout_mode" value="replace" class="text-blue-600 focus:ring-0"> 
-                  <div>
-                    <div class="text-xs font-semibold" style="color: var(--text-primary);">纯单语替换</div>
-                    <div class="text-[10px] font-mono opacity-60">覆盖输出目标语言</div>
-                  </div>
+                  <span class="text-xs font-medium" style="color: var(--text-primary);">单语替换</span>
                 </label>
               </div>
             </div>
           </div>
 
-          <!-- 进度条面板 (处理中显示) -->
+          <!-- 进度条面板 -->
           <div id="progress-panel" class="p-4 rounded-xl border hidden" style="background-color: var(--bg-card-subtle); border-color: var(--border-subtle);">
             <div class="flex justify-between items-center text-xs mb-2">
               <span id="progress-status-text" class="font-medium flex items-center gap-1.5" style="color: var(--text-primary);">
-                <i class="ph ph-spinner animate-spin text-sm" style="color: var(--accent-primary);"></i> 正在调用大模型并发翻译并应用术语与排版约束...
+                <i class="ph ph-spinner animate-spin text-sm" style="color: var(--accent-primary);"></i> 正在翻译...
               </span>
               <span id="progress-percent" class="font-semibold font-mono text-xs" style="color: var(--accent-primary);">0%</span>
             </div>
@@ -258,14 +231,14 @@
           <div class="pt-2 flex justify-end">
             <button id="btn-start-translate" onclick="startTranslationProcess()" class="px-6 py-2.5 text-xs font-semibold transition flex items-center gap-2 btn-primary shadow-sm">
               <i class="ph ph-play text-sm"></i>
-              <span>开始智能双语制作</span>
+              <span>开始制作</span>
             </button>
           </div>
         </div>
 
       </section>
 
-      <!-- ================= 视图 2: 左右双栏对比校对工作台 (Diff Workbench) ================= -->
+      <!-- ================= 视图 2: 左右双栏对比校对工作台 ================= -->
       <section id="view-diff" class="h-full flex flex-col overflow-hidden hidden fade-in">
         
         <!-- 工作台顶栏工具栏 -->
@@ -275,17 +248,17 @@
               <i class="ph ph-file"></i> 未加载文件
             </span>
             <span id="diff-stats" class="app-badge app-badge-highlight">
-              <i class="ph ph-check-circle"></i> 已就绪 (0 单元)
+              <i class="ph ph-check-circle"></i> 0 单元
             </span>
           </div>
 
           <div class="flex items-center gap-2.5">
             <div class="relative">
-              <input type="text" id="diff-search" placeholder="搜索关键词..." oninput="filterDiffItems()" class="w-52 rounded-lg pl-7 pr-3 py-1.5 text-xs focus:outline-none border app-input">
+              <input type="text" id="diff-search" placeholder="搜索..." oninput="filterDiffItems()" class="w-48 rounded-lg pl-7 pr-3 py-1.5 text-xs focus:outline-none border app-input">
               <i class="ph ph-magnifying-glass opacity-50 absolute left-2.5 top-2 text-xs"></i>
             </div>
             <button onclick="exportCurrentDocument()" class="px-4 py-1.5 text-xs font-medium rounded-lg transition flex items-center gap-1 btn-primary">
-              <i class="ph ph-download-simple text-sm"></i> 导出双语文件
+              <i class="ph ph-download-simple text-sm"></i> 导出
             </button>
           </div>
         </div>
@@ -293,36 +266,33 @@
         <!-- 左右分栏内容区 -->
         <div class="flex-1 grid grid-cols-2 gap-4 p-5 overflow-hidden">
           
-          <!-- 左栏：源语言原文档 (只读) -->
+          <!-- 左栏：源文档 -->
           <div class="app-card flex flex-col overflow-hidden">
             <div class="px-4 py-2 text-xs font-semibold flex justify-between items-center" style="background-color: var(--bg-card-subtle); border-bottom: 1px solid var(--border-subtle); color: var(--text-primary);">
-              <span id="diff-left-title">源语言文档 (只读参考)</span>
-              <span class="text-[10px] font-mono opacity-50">SOURCE</span>
+              <span id="diff-left-title">源文档</span>
             </div>
             <div id="diff-left-container" class="flex-1 p-4 overflow-y-auto space-y-2.5 text-xs leading-relaxed">
-              <div class="text-center opacity-40 py-20 text-xs font-mono">暂无待校对内容，请先在【文档制作】中上传并转换文件</div>
+              <div class="text-center opacity-40 py-20 text-xs font-mono">暂无内容</div>
             </div>
           </div>
 
           <!-- 右栏：双语校对区 -->
           <div class="app-card flex flex-col overflow-hidden" style="border-color: var(--border-medium);">
             <div class="px-4 py-2 text-xs font-semibold flex justify-between items-center" style="background-color: var(--bg-card-subtle); border-bottom: 1px solid var(--border-subtle); color: var(--text-primary);">
-              <span id="diff-right-title">双语输出与校准 (可直接编辑修改)</span>
-              <span class="text-[10px] font-mono opacity-60">实时保存</span>
+              <span id="diff-right-title">校对与编辑</span>
             </div>
             <div id="diff-right-container" class="flex-1 p-4 overflow-y-auto space-y-2.5 text-xs leading-relaxed">
-              <div class="text-center opacity-40 py-20 text-xs font-mono">暂无待校对内容</div>
+              <div class="text-center opacity-40 py-20 text-xs font-mono">暂无内容</div>
             </div>
           </div>
         </div>
       </section>
 
-      <!-- ================= 视图 3: 专有术语库 (Glossary View) ================= -->
+      <!-- ================= 视图 3: 专有术语库 ================= -->
       <section id="view-glossary" class="h-full p-6 overflow-y-auto max-w-5xl mx-auto w-full hidden fade-in">
         <div class="flex items-center justify-between mb-4">
           <div>
-            <h3 class="text-sm font-semibold" style="color: var(--text-primary);">制造业专有术语词典</h3>
-            <p class="text-xs" style="color: var(--text-secondary);">统一全厂技术规范翻译，翻译时强制锁定专业工艺词汇 (支持中外双向命中)</p>
+            <h3 class="text-sm font-semibold" style="color: var(--text-primary);">专有术语库</h3>
           </div>
           <div class="flex gap-2">
             <input type="file" id="glossary-file-input" class="hidden" accept=".xlsx,.csv" onchange="handleGlossaryImport(event)">
@@ -333,7 +303,7 @@
               <i class="ph ph-download-simple text-sm"></i> 导出
             </button>
             <button onclick="openGlossaryModal()" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold transition btn-primary flex items-center gap-1">
-              <i class="ph ph-plus text-sm"></i> 新建词条
+              <i class="ph ph-plus text-sm"></i> 新建
             </button>
           </div>
         </div>
@@ -341,20 +311,20 @@
         <div class="app-card overflow-hidden">
           <div class="p-3 border-b flex gap-2.5" style="border-color: var(--border-subtle);">
             <div class="relative flex-1">
-              <input type="text" id="glossary-search" placeholder="输入关键词搜索词条..." oninput="loadGlossaryList()" class="w-full rounded-lg pl-7 pr-3 py-1 text-xs focus:outline-none border app-input">
+              <input type="text" id="glossary-search" placeholder="搜索术语..." oninput="loadGlossaryList()" class="w-full rounded-lg pl-7 pr-3 py-1 text-xs focus:outline-none border app-input">
               <i class="ph ph-magnifying-glass opacity-50 absolute left-2.5 top-1.5 text-xs"></i>
             </div>
             <select id="glossary-cat-filter" onchange="loadGlossaryList()" class="rounded-lg px-2.5 py-1 text-xs font-medium border app-input">
-              <option value="全部">全部工艺分类</option>
+              <option value="全部">全部分类</option>
             </select>
           </div>
           <table class="w-full text-left text-xs border-collapse">
             <thead class="border-b text-[11px] font-medium font-mono" style="background: var(--bg-card-subtle); border-color: var(--border-subtle); color: var(--text-secondary);">
               <tr>
-                <th class="p-3">中文源词条 (Chinese)</th>
-                <th class="p-3">标准外文译文 (Foreign Target)</th>
-                <th class="p-3">适用外语语种</th>
-                <th class="p-3">工艺分类</th>
+                <th class="p-3">中文词条</th>
+                <th class="p-3">外文译文</th>
+                <th class="p-3">语种</th>
+                <th class="p-3">分类</th>
                 <th class="p-3 text-right">操作</th>
               </tr>
             </thead>
@@ -365,157 +335,127 @@
         </div>
       </section>
 
-      <!-- ================= 视图 4: 系统设置 (Settings View) ================= -->
-      <section id="view-settings" class="h-full p-6 overflow-y-auto max-w-4xl mx-auto w-full hidden fade-in space-y-5">
+      <!-- ================= 视图 4: 系统设置 ================= -->
+      <section id="view-settings" class="h-full p-6 overflow-y-auto max-w-4xl mx-auto w-full hidden fade-in space-y-4">
         <div class="flex items-center justify-between pb-1">
-          <div>
-            <h3 class="text-sm font-semibold" style="color: var(--text-primary);">系统设置与环境配置</h3>
-            <p class="text-xs" style="color: var(--text-secondary);">统一管理工业大模型 API 接口、双语文档导出目录与界面主题外观</p>
-          </div>
+          <h3 class="text-sm font-semibold" style="color: var(--text-primary);">系统设置</h3>
           <button onclick="saveAllSettings()" class="px-4 py-2 rounded-lg text-xs font-semibold transition flex items-center gap-1.5 btn-primary shadow-sm">
-            <i class="ph ph-floppy-disk text-sm"></i> 保存所有设置
+            <i class="ph ph-floppy-disk text-sm"></i> 保存设置
           </button>
         </div>
 
-        <!-- 模块 1: 🤖 大模型与翻译 API 接口配置 (v1.2.6: 取消预设平台，配置 URL 与 Key 后动态选择模型) -->
+        <!-- 模块 1: API 接口配置 -->
         <div class="app-card p-5 space-y-4">
           <div class="flex items-center justify-between border-b pb-3" style="border-color: var(--border-subtle);">
             <div class="flex items-center gap-2">
               <div class="w-7 h-7 rounded-md flex items-center justify-center text-sm font-semibold text-white shadow-sm" style="background-color: var(--accent-primary);">
                 <i class="ph ph-robot"></i>
               </div>
-              <div>
-                <h4 class="text-xs font-semibold" style="color: var(--text-primary);">大模型与翻译 API 接口配置</h4>
-                <p class="text-[11px]" style="color: var(--text-secondary);">配置 API 接口地址与鉴权密钥，系统将自动探测并提供模型选择入口</p>
-              </div>
+              <h4 class="text-xs font-semibold" style="color: var(--text-primary);">API 接口设置</h4>
             </div>
-            <span class="text-[10px] font-mono px-2 py-0.5 rounded font-medium" style="background: var(--accent-subtle); color: var(--accent-primary);">OpenAI 兼容协议</span>
           </div>
 
-          <!-- API URL 与 API Key 输入框 (取消预设平台，仅输入 URL 与 Key) -->
+          <!-- API URL 与 API Key 输入框 -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <div class="flex items-center justify-between mb-1.5">
-                <label class="block text-xs font-medium" style="color: var(--text-secondary);">API 接口地址 (URL)</label>
-                <span class="text-[10px] font-mono opacity-60" style="color: var(--text-secondary);">必填项</span>
-              </div>
-              <input type="text" id="settings-base-url" value="https://api.deepseek.com/v1" placeholder="例如: https://api.deepseek.com/v1 或 http://localhost:11434/v1" class="w-full rounded-lg px-3 py-2 text-xs font-mono border app-input">
-              <p class="text-[11px] mt-1.5 opacity-70" style="color: var(--text-secondary);">支持 DeepSeek, Gemini, OpenAI, 硅基流动, 阿里云百炼, Ollama 等兼容端点</p>
+              <label class="block text-xs font-medium mb-1.5" style="color: var(--text-secondary);">API 接口地址</label>
+              <input type="text" id="settings-base-url" value="https://api.deepseek.com/v1" placeholder="https://api.deepseek.com/v1" class="w-full rounded-lg px-3 py-2 text-xs font-mono border app-input">
             </div>
             <div>
-              <div class="flex items-center justify-between mb-1.5">
-                <label class="block text-xs font-medium" style="color: var(--text-secondary);">API Key 密钥</label>
-                <span class="text-[10px] font-mono opacity-60" style="color: var(--text-secondary);">本地离线服务可留空</span>
-              </div>
+              <label class="block text-xs font-medium mb-1.5" style="color: var(--text-secondary);">API Key</label>
               <div class="relative">
-                <input type="password" id="settings-api-key" placeholder="填入 API Key 密钥 (如 sk-... 或 AIzaSy...)" class="w-full rounded-lg pl-3 pr-8 py-2 text-xs font-mono border app-input">
-                <button type="button" onclick="toggleApiKeyVisibility()" class="absolute right-2.5 top-2 opacity-50 hover:opacity-100 transition" title="显示/隐藏密钥">
+                <input type="password" id="settings-api-key" placeholder="API Key 密钥" class="w-full rounded-lg pl-3 pr-8 py-2 text-xs font-mono border app-input">
+                <button type="button" onclick="toggleApiKeyVisibility()" class="absolute right-2.5 top-2 opacity-50 hover:opacity-100 transition" title="显示/隐藏">
                   <i id="toggle-key-icon" class="ph ph-eye text-sm"></i>
                 </button>
               </div>
-              <p class="text-[11px] mt-1.5 opacity-70" style="color: var(--text-secondary);">密钥保存在本地数据库中，用于双语翻译并发推理鉴权</p>
             </div>
           </div>
 
-          <!-- API 动作栏 (拉取可用模型与连通性测试) -->
+          <!-- API 动作栏 -->
           <div class="flex items-center justify-between pt-2 border-t" style="border-color: var(--border-subtle);">
+            <span id="api-conn-status-indicator" class="inline-flex items-center gap-1.5 text-[11px] font-medium" style="color: var(--text-secondary);">
+              <span class="w-2 h-2 rounded-full bg-slate-400"></span> 待获取模型
+            </span>
             <div class="flex items-center gap-2">
-              <span id="api-conn-status-indicator" class="inline-flex items-center gap-1.5 text-[11px] font-medium" style="color: var(--text-secondary);">
-                <span class="w-2 h-2 rounded-full bg-slate-400"></span> 待拉取模型
-              </span>
-            </div>
-            <div class="flex items-center gap-2">
-              <button id="btn-fetch-models" onclick="fetchModelsFromApi(false)" class="px-3.5 py-1.5 rounded-lg text-xs font-medium border transition flex items-center gap-1.5 btn-secondary flex-shrink-0" title="向 API 发起请求，自动拉取当前 Key 可访问的所有模型列表">
-                <i class="ph ph-list-magnifying-glass text-sm"></i> 获取可用模型
+              <button id="btn-fetch-models" onclick="fetchModelsFromApi(false)" class="px-3.5 py-1.5 rounded-lg text-xs font-medium border transition flex items-center gap-1.5 btn-secondary flex-shrink-0">
+                <i class="ph ph-list-magnifying-glass text-sm"></i> 获取模型
               </button>
               <button id="btn-test-conn" onclick="testApiConnection()" class="px-3.5 py-1.5 rounded-lg text-xs font-medium border transition flex items-center gap-1.5 btn-secondary flex-shrink-0">
-                <i class="ph ph-plugs-connected text-sm"></i> 测试连通性
+                <i class="ph ph-plugs-connected text-sm"></i> 测试连接
               </button>
             </div>
           </div>
 
-          <!-- 🎯 模型选择入口区域 (根据所配置的 API 提供入口给用户进行模型选择) -->
+          <!-- 模型选择区域 -->
           <div id="model-selection-card" class="p-4 rounded-xl border space-y-3" style="background-color: var(--bg-card-subtle); border-color: var(--border-subtle);">
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-2">
                 <div class="w-6 h-6 rounded flex items-center justify-center text-xs text-white" style="background-color: var(--accent-primary);">
                   <i class="ph ph-cpu"></i>
                 </div>
-                <div>
-                  <h5 class="text-xs font-semibold" style="color: var(--text-primary);">模型选择 (Model Selection)</h5>
-                  <p class="text-[11px]" style="color: var(--text-secondary);">根据上方配置的 API 接口，选取或指定要执行翻译的大模型</p>
-                </div>
+                <h5 class="text-xs font-semibold" style="color: var(--text-primary);">模型选择</h5>
               </div>
               <span id="model-count-badge" class="text-[10px] font-mono px-2 py-0.5 rounded font-medium" style="background: var(--badge-bg); color: var(--badge-text);">待检测</span>
             </div>
 
-            <!-- 下拉选择入口 -->
+            <!-- 下拉选择 -->
             <div>
-              <label class="block text-xs font-medium mb-1.5" style="color: var(--text-secondary);">从当前 API 可用模型中选取</label>
+              <label class="block text-xs font-medium mb-1.5" style="color: var(--text-secondary);">可用模型</label>
               <div class="flex gap-2">
                 <select id="settings-model-select" onchange="handleModelSelectChange(this.value)" class="flex-1 rounded-lg px-3 py-2 text-xs font-medium border app-input">
-                  <option value="">-- 点击上方「获取可用模型」或直接在下方手动输入 --</option>
+                  <option value="">-- 请选择模型 --</option>
                 </select>
-                <button type="button" onclick="testCurrentModel()" id="btn-test-model" class="px-3 py-2 rounded-lg text-xs font-medium border btn-secondary transition flex items-center gap-1 flex-shrink-0" title="校验当前选取的模型是否正常响应">
-                  <i class="ph ph-lightning text-xs"></i> 校验模型
+                <button type="button" onclick="testCurrentModel()" id="btn-test-model" class="px-3 py-2 rounded-lg text-xs font-medium border btn-secondary transition flex items-center gap-1 flex-shrink-0" title="校验模型">
+                  <i class="ph ph-lightning text-xs"></i> 校验
                 </button>
               </div>
             </div>
 
-            <!-- 当前生效模型输入框 (支持直接微调或手动输入) -->
+            <!-- 当前生效模型 -->
             <div>
-              <div class="flex items-center justify-between mb-1">
-                <label class="block text-[11px] font-medium" style="color: var(--text-secondary);">当前生效模型名称 (支持手动微调或自由输入)</label>
-                <span class="text-[10px] font-mono opacity-60" style="color: var(--text-secondary);">文档制作将使用此模型</span>
-              </div>
-              <input type="text" id="settings-model-name" value="deepseek-chat" placeholder="如 deepseek-chat, gemini-3.8-flash, gpt-4o-mini 等" class="w-full rounded-lg px-3 py-2 text-xs font-mono border app-input">
+              <label class="block text-[11px] font-medium mb-1" style="color: var(--text-secondary);">模型名称</label>
+              <input type="text" id="settings-model-name" value="deepseek-chat" placeholder="如 deepseek-chat, gpt-4o 等" class="w-full rounded-lg px-3 py-2 text-xs font-mono border app-input">
             </div>
           </div>
         </div>
 
-        <!-- 模块 2: 📁 双语文档导出与存储位置 -->
-        <div class="app-card p-5 space-y-4">
+        <!-- 模块 2: 导出目录 -->
+        <div class="app-card p-5 space-y-3">
           <div class="flex items-center justify-between border-b pb-3" style="border-color: var(--border-subtle);">
             <div class="flex items-center gap-2">
               <div class="w-7 h-7 rounded-md flex items-center justify-center text-sm font-semibold text-white shadow-sm" style="background-color: var(--accent-primary);">
                 <i class="ph ph-folder-notch-open"></i>
               </div>
-              <div>
-                <h4 class="text-xs font-semibold" style="color: var(--text-primary);">双语文件导出与存储位置</h4>
-                <p class="text-[11px]" style="color: var(--text-secondary);">自定义 Word / Excel / PowerPoint / CSV 转换完成后的双语文件输出路径</p>
-              </div>
+              <h4 class="text-xs font-semibold" style="color: var(--text-primary);">文件导出目录</h4>
             </div>
           </div>
 
           <div>
-            <label class="block text-xs font-medium mb-1.5" style="color: var(--text-secondary);">当前默认导出目录路径</label>
+            <label class="block text-xs font-medium mb-1.5" style="color: var(--text-secondary);">导出路径</label>
             <div class="flex gap-2">
-              <input type="text" id="settings-export-dir" placeholder="系统默认路径 (例如: C:\...\exported_docs)" class="flex-1 rounded-lg px-3 py-2 text-xs font-mono border app-input">
-              <button onclick="browseExportDir()" class="px-3.5 py-2 rounded-lg text-xs font-medium border transition flex items-center gap-1.5 btn-secondary flex-shrink-0" title="浏览并选择本地目录">
-                <i class="ph ph-folder-open text-sm"></i> 选择目录
+              <input type="text" id="settings-export-dir" placeholder="系统默认路径" class="flex-1 rounded-lg px-3 py-2 text-xs font-mono border app-input">
+              <button onclick="browseExportDir()" class="px-3.5 py-2 rounded-lg text-xs font-medium border transition flex items-center gap-1.5 btn-secondary flex-shrink-0">
+                <i class="ph ph-folder-open text-sm"></i> 选择
               </button>
-              <button onclick="openExportDir()" class="px-3.5 py-2 rounded-lg text-xs font-medium border transition flex items-center gap-1.5 btn-secondary flex-shrink-0" title="在 Windows 资源管理器中打开此文件夹">
-                <i class="ph ph-arrow-square-out text-sm"></i> 打开目录
+              <button onclick="openExportDir()" class="px-3.5 py-2 rounded-lg text-xs font-medium border transition flex items-center gap-1.5 btn-secondary flex-shrink-0">
+                <i class="ph ph-arrow-square-out text-sm"></i> 打开
               </button>
-              <button onclick="resetExportDir()" class="px-3 py-2 rounded-lg text-xs font-medium border transition flex items-center gap-1 opacity-70 hover:opacity-100 btn-secondary flex-shrink-0" title="重置为系统默认路径">
-                <i class="ph ph-arrow-counter-clockwise text-sm"></i> 恢复默认
+              <button onclick="resetExportDir()" class="px-3 py-2 rounded-lg text-xs font-medium border transition flex items-center gap-1 opacity-70 hover:opacity-100 btn-secondary flex-shrink-0">
+                <i class="ph ph-arrow-counter-clockwise text-sm"></i> 重置
               </button>
             </div>
-            <p class="text-[11px] mt-1.5 opacity-60 font-mono" style="color: var(--text-secondary);">转换生成的双语对照文档将自动落盘至该路径，且可在交付历史中随时一键定位。</p>
           </div>
         </div>
 
-        <!-- 模块 3: 🎨 界面外观与主题风格 -->
-        <div class="app-card p-5 space-y-4">
+        <!-- 模块 3: 界面主题 -->
+        <div class="app-card p-5 space-y-3">
           <div class="flex items-center justify-between border-b pb-3" style="border-color: var(--border-subtle);">
             <div class="flex items-center gap-2">
               <div class="w-7 h-7 rounded-md flex items-center justify-center text-sm font-semibold text-white shadow-sm" style="background-color: var(--accent-primary);">
                 <i class="ph ph-paint-brush-broad"></i>
               </div>
-              <div>
-                <h4 class="text-xs font-semibold" style="color: var(--text-primary);">界面外观与主题风格</h4>
-                <p class="text-[11px]" style="color: var(--text-secondary);">选择您偏好的工业桌面工学显示主题，设置即时生效并跨会话持久化</p>
-              </div>
+              <h4 class="text-xs font-semibold" style="color: var(--text-primary);">界面主题</h4>
             </div>
           </div>
 
@@ -526,13 +466,7 @@
                 <div class="w-9 h-9 rounded-lg flex items-center justify-center bg-slate-900 text-blue-400 border border-slate-700 shadow-sm flex-shrink-0">
                   <i class="ph ph-moon text-lg"></i>
                 </div>
-                <div>
-                  <div class="flex items-center gap-2">
-                    <span class="text-xs font-semibold" style="color: var(--text-primary);">曜石深灰 (Pro Dark)</span>
-                    <span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-slate-800 text-slate-300">工业暗光</span>
-                  </div>
-                  <p class="text-[11px] mt-0.5" style="color: var(--text-secondary);">沉浸深邃微材质，适合车间暗光与长久作业防疲劳</p>
-                </div>
+                <span class="text-xs font-semibold" style="color: var(--text-primary);">深色模式</span>
               </div>
               <div id="theme-check-dark" class="w-5 h-5 rounded-full border flex items-center justify-center text-xs text-white flex-shrink-0" style="border-color: var(--border-medium);">
                 <i class="ph ph-check hidden"></i>
@@ -545,13 +479,7 @@
                 <div class="w-9 h-9 rounded-lg flex items-center justify-center bg-white text-blue-600 border border-slate-200 shadow-sm flex-shrink-0">
                   <i class="ph ph-sun text-lg"></i>
                 </div>
-                <div>
-                  <div class="flex items-center gap-2">
-                    <span class="text-xs font-semibold" style="color: var(--text-primary);">纸感浅白 (Studio Light)</span>
-                    <span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-blue-50 text-blue-600">纯白清晰</span>
-                  </div>
-                  <p class="text-[11px] mt-0.5" style="color: var(--text-secondary);">高对比度纸感白，侧边栏与文字线条锐利清晰</p>
-                </div>
+                <span class="text-xs font-semibold" style="color: var(--text-primary);">浅色模式</span>
               </div>
               <div id="theme-check-light" class="w-5 h-5 rounded-full border flex items-center justify-center text-xs text-white flex-shrink-0" style="border-color: var(--border-medium);">
                 <i class="ph ph-check hidden"></i>
@@ -560,35 +488,27 @@
           </div>
         </div>
 
-        <!-- 模块 4: ℹ️ 关于与系统信息 -->
+        <!-- 模块 4: 系统信息 -->
         <div class="app-card p-4 flex items-center justify-between text-xs" style="color: var(--text-secondary);">
           <div class="flex items-center gap-3">
             <div class="w-8 h-8 rounded-lg flex items-center justify-center font-bold text-white shadow-sm flex-shrink-0" style="background-color: var(--accent-primary);">
               <i class="ph ph-translate text-base"></i>
             </div>
-            <div>
-              <div class="flex items-center gap-2">
-                <span class="font-semibold text-xs" style="color: var(--text-primary);">TransFiler 制造业文档双语智能转换系统</span>
-                <span class="text-[9px] font-mono font-medium px-1.5 py-0.5 rounded" style="background: var(--accent-subtle); color: var(--accent-primary);">v1.2.6</span>
-              </div>
-              <p class="text-[11px] opacity-70 mt-0.5">OpenXML & PPTX 0% 原生排版失真重构内核 • 全双向 11 种语种互译</p>
+            <div class="flex items-center gap-2">
+              <span class="font-semibold text-xs" style="color: var(--text-primary);">TransFiler</span>
+              <span class="text-[9px] font-mono font-medium px-1 py-0.5 rounded" style="background: var(--accent-subtle); color: var(--accent-primary);">v1.2.6</span>
             </div>
           </div>
-          <div class="flex items-center gap-3">
-            <button onclick="saveAllSettings()" class="px-4 py-1.5 rounded-lg text-xs font-semibold transition flex items-center gap-1 btn-primary">
-              <i class="ph ph-floppy-disk text-sm"></i> 保存所有设置
-            </button>
-          </div>
+          <button onclick="saveAllSettings()" class="px-4 py-1.5 rounded-lg text-xs font-semibold transition flex items-center gap-1 btn-primary">
+            <i class="ph ph-floppy-disk text-sm"></i> 保存设置
+          </button>
         </div>
       </section>
 
-      <!-- ================= 视图 5: 交付历史 (History View) ================= -->
+      <!-- ================= 视图 5: 交付历史 ================= -->
       <section id="view-history" class="h-full p-6 overflow-y-auto max-w-5xl mx-auto w-full hidden fade-in">
         <div class="flex items-center justify-between mb-4">
-          <div>
-            <h3 class="text-sm font-semibold" style="color: var(--text-primary);">双语文件交付历史</h3>
-            <p class="text-xs" style="color: var(--text-secondary);">查看历史制作完成的双语文件，支持一键在文件夹中定位</p>
-          </div>
+          <h3 class="text-sm font-semibold" style="color: var(--text-primary);">交付历史</h3>
           <button onclick="loadHistoryList()" class="px-3.5 py-1.5 rounded-lg text-xs font-medium border transition btn-secondary flex items-center gap-1">
             <i class="ph ph-arrows-clockwise text-sm"></i> 刷新
           </button>
@@ -598,10 +518,10 @@
           <table class="w-full text-left text-xs border-collapse">
             <thead class="border-b text-[11px] font-medium font-mono" style="background: var(--bg-card-subtle); border-color: var(--border-subtle); color: var(--text-secondary);">
               <tr>
-                <th class="p-3">导出的双语文件名</th>
-                <th class="p-3">语种方向</th>
-                <th class="p-3">条目总数</th>
-                <th class="p-3">制作时间</th>
+                <th class="p-3">文件名</th>
+                <th class="p-3">语种</th>
+                <th class="p-3">条目数</th>
+                <th class="p-3">时间</th>
                 <th class="p-3 text-right">操作</th>
               </tr>
             </thead>
@@ -616,10 +536,11 @@
   </main>
 
   <!-- ================= 弹窗：新建/编辑术语 Modal ================= -->
+  <!-- ================= 弹窗：新建/编辑术语 Modal ================= -->
   <div id="glossary-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 hidden">
     <div class="app-card p-5 w-full max-w-md shadow-xl border fade-in" style="background: var(--bg-card); border-color: var(--border-strong);">
       <div class="flex justify-between items-center mb-3">
-        <h4 id="glossary-modal-title" class="text-xs font-semibold" style="color: var(--text-primary);">新建专有术语词条</h4>
+        <h4 id="glossary-modal-title" class="text-xs font-semibold" style="color: var(--text-primary);">新建术语</h4>
         <button onclick="closeGlossaryModal()" class="opacity-60 hover:opacity-100 transition">
           <i class="ph ph-x text-base"></i>
         </button>
@@ -628,16 +549,16 @@
       <input type="hidden" id="modal-term-id">
       <div class="space-y-3 text-xs">
         <div>
-          <label class="block font-medium mb-1" style="color: var(--text-secondary);">中文词条 (Chinese) *</label>
-          <input type="text" id="modal-source-term" placeholder="例如：射胶压力" class="w-full rounded-lg px-3 py-2 border app-input">
+          <label class="block font-medium mb-1" style="color: var(--text-secondary);">中文词条 *</label>
+          <input type="text" id="modal-source-term" placeholder="中文词条" class="w-full rounded-lg px-3 py-2 border app-input">
         </div>
         <div>
-          <label class="block font-medium mb-1" style="color: var(--text-secondary);">外文译文 (Foreign) *</label>
-          <input type="text" id="modal-target-term" placeholder="例如：Injection Pressure" class="w-full rounded-lg px-3 py-2 border app-input">
+          <label class="block font-medium mb-1" style="color: var(--text-secondary);">外文译文 *</label>
+          <input type="text" id="modal-target-term" placeholder="外文译文" class="w-full rounded-lg px-3 py-2 border app-input">
         </div>
         <div class="grid grid-cols-2 gap-2.5">
           <div>
-            <label class="block font-medium mb-1" style="color: var(--text-secondary);">对应外语语种</label>
+            <label class="block font-medium mb-1" style="color: var(--text-secondary);">语种</label>
             <select id="modal-target-lang" class="w-full rounded-lg px-3 py-2 border app-input">
               <option value="en">英语 (en)</option>
               <option value="vi">越南语 (vi)</option>
@@ -652,15 +573,15 @@
             </select>
           </div>
           <div>
-            <label class="block font-medium mb-1" style="color: var(--text-secondary);">工艺分类</label>
-            <input type="text" id="modal-category" placeholder="如：注塑工艺" value="通用" class="w-full rounded-lg px-3 py-2 border app-input">
+            <label class="block font-medium mb-1" style="color: var(--text-secondary);">分类</label>
+            <input type="text" id="modal-category" placeholder="分类" value="通用" class="w-full rounded-lg px-3 py-2 border app-input">
           </div>
         </div>
       </div>
 
       <div class="mt-4 flex justify-end gap-2">
         <button onclick="closeGlossaryModal()" class="px-3.5 py-1.5 rounded-lg text-xs font-medium border transition btn-secondary">取消</button>
-        <button onclick="saveGlossaryModal()" class="px-4 py-1.5 text-xs font-semibold transition btn-primary">保存词条</button>
+        <button onclick="saveGlossaryModal()" class="px-4 py-1.5 text-xs font-semibold transition btn-primary">保存</button>
       </div>
     </div>
   </div>
@@ -668,17 +589,17 @@
   <!-- ================= 弹窗：导出完成提示 Modal ================= -->
   <div id="export-success-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 hidden">
     <div class="app-card p-6 w-full max-w-md text-center shadow-xl border fade-in" style="background: var(--bg-card); border-color: var(--border-strong);">
-      <div class="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3 shadow-sm" style="background: var(--badge-highlight-bg); color: var(--badge-highlight-text);">
+      <div class="w-10 h-10 rounded-full flex items-center justify-center mx-auto mb-3 shadow-sm" style="background: var(--badge-highlight-bg); color: var(--badge-highlight-text);">
         <i class="ph ph-check-circle text-2xl"></i>
       </div>
-      <h4 class="text-sm font-semibold mb-1" style="color: var(--text-primary);">双语文件已成功生成</h4>
-      <p id="export-modal-desc" class="text-xs mb-5 break-all font-mono opacity-70" style="color: var(--text-secondary);">文件已保存至本地指定目录</p>
+      <h4 class="text-xs font-semibold mb-2" style="color: var(--text-primary);">导出成功</h4>
+      <p id="export-modal-desc" class="text-[11px] mb-4 break-all font-mono opacity-70" style="color: var(--text-secondary);"></p>
 
       <div class="flex justify-center gap-2">
-        <button id="btn-open-folder" class="px-4 py-2 rounded-lg text-xs font-medium border transition flex items-center gap-1 btn-secondary">
-          <i class="ph ph-folder-open text-sm"></i> 打开所在文件夹
+        <button id="btn-open-folder" class="px-4 py-1.5 rounded-lg text-xs font-medium border transition flex items-center gap-1 btn-secondary">
+          <i class="ph ph-folder-open text-sm"></i> 打开目录
         </button>
-        <button onclick="closeExportSuccessModal()" class="px-5 py-2 text-xs font-semibold transition btn-primary">
+        <button onclick="closeExportSuccessModal()" class="px-5 py-1.5 text-xs font-semibold transition btn-primary">
           完成
         </button>
       </div>
@@ -691,13 +612,10 @@
       <!-- 头部 -->
       <div class="flex items-center justify-between pb-3 border-b" style="border-color: var(--border-subtle);">
         <div class="flex items-center gap-2.5">
-          <div class="w-8 h-8 rounded-lg flex items-center justify-center font-bold text-white shadow-sm flex-shrink-0" style="background-color: var(--accent-primary);">
-            <i class="ph ph-cpu text-lg"></i>
+          <div class="w-7 h-7 rounded-lg flex items-center justify-center font-bold text-white shadow-sm flex-shrink-0" style="background-color: var(--accent-primary);">
+            <i class="ph ph-cpu text-base"></i>
           </div>
-          <div>
-            <h3 class="text-xs font-semibold" style="color: var(--text-primary);">选择大模型 (Model Selection)</h3>
-            <p id="model-modal-endpoint-tip" class="text-[11px] font-mono opacity-70 truncate max-w-xs" style="color: var(--text-secondary);">从已配置的 API 端点选择模型</p>
-          </div>
+          <h3 class="text-xs font-semibold" style="color: var(--text-primary);">选择模型</h3>
         </div>
         <button type="button" onclick="closeModelSelectionModal()" class="w-7 h-7 rounded-lg flex items-center justify-center opacity-60 hover:opacity-100 hover:bg-white/10 transition" style="color: var(--text-secondary);">
           <i class="ph ph-x text-base"></i>
@@ -705,15 +623,15 @@
       </div>
 
       <!-- 搜索过滤与操作栏 -->
-      <div class="py-3 space-y-2 border-b" style="border-color: var(--border-subtle);">
+      <div class="py-2.5 space-y-2 border-b" style="border-color: var(--border-subtle);">
         <div class="relative">
           <i class="ph ph-magnifying-glass absolute left-3 top-2 text-xs opacity-50" style="color: var(--text-primary);"></i>
-          <input type="text" id="model-modal-search" oninput="filterModelModalList(this.value)" placeholder="搜索模型名称 (如 chat, v3, flash, qwen)..." class="w-full rounded-lg pl-8 pr-3 py-1.5 text-xs font-mono border app-input">
+          <input type="text" id="model-modal-search" oninput="filterModelModalList(this.value)" placeholder="搜索模型..." class="w-full rounded-lg pl-8 pr-3 py-1.5 text-xs font-mono border app-input">
         </div>
         <div class="flex items-center justify-between text-[11px]">
-          <span id="model-modal-count" class="font-mono opacity-70" style="color: var(--text-secondary);">已发现 0 个模型</span>
+          <span id="model-modal-count" class="font-mono opacity-70" style="color: var(--text-secondary);">0 个模型</span>
           <button type="button" onclick="fetchModelsFromApi(false)" class="flex items-center gap-1 font-medium hover:underline opacity-80 hover:opacity-100" style="color: var(--accent-primary);">
-            <i class="ph ph-arrows-clockwise text-xs"></i> 重新拉取列表
+            <i class="ph ph-arrows-clockwise text-xs"></i> 刷新列表
           </button>
         </div>
       </div>
@@ -724,20 +642,20 @@
       </div>
 
       <!-- 手动输入自定义模型 -->
-      <div class="pt-3 border-t space-y-2" style="border-color: var(--border-subtle);">
-        <label class="block text-[11px] font-medium" style="color: var(--text-secondary);">自定义模型名称 (若列表中未包含)</label>
+      <div class="pt-2.5 border-t space-y-1.5" style="border-color: var(--border-subtle);">
+        <label class="block text-[11px] font-medium" style="color: var(--text-secondary);">自定义模型</label>
         <div class="flex gap-2">
-          <input type="text" id="model-modal-custom-input" placeholder="输入自定义模型 ID，如 gpt-4o 或 deepseek-chat" class="flex-1 rounded-lg px-3 py-1.5 text-xs font-mono border app-input">
+          <input type="text" id="model-modal-custom-input" placeholder="输入模型 ID" class="flex-1 rounded-lg px-3 py-1.5 text-xs font-mono border app-input">
           <button type="button" onclick="applyCustomModelFromModal()" class="px-3 py-1.5 rounded-lg text-xs font-semibold btn-primary transition flex-shrink-0">
-            应用此模型
+            应用
           </button>
         </div>
       </div>
 
       <!-- 底部快捷跳转与关闭 -->
-      <div class="pt-3 flex justify-between items-center text-[11px]" style="color: var(--text-secondary);">
+      <div class="pt-2.5 flex justify-between items-center text-[11px]" style="color: var(--text-secondary);">
         <a href="javascript:void(0)" onclick="closeModelSelectionModal(); switchTab('settings');" class="hover:underline flex items-center gap-1" style="color: var(--accent-primary);">
-          <i class="ph ph-gear text-xs"></i> 前往 API 接口与密钥设置
+          <i class="ph ph-gear text-xs"></i> API 设置
         </a>
         <button type="button" onclick="closeModelSelectionModal()" class="px-3 py-1 rounded-lg border btn-secondary text-xs">
           关闭
