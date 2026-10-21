@@ -46,9 +46,22 @@ exported_docs/*
 *.swp
 *.swo
 
+# AI Agent / Skills & external tool artifacts (local only)
+.agents/
+skills/
+taste-skill-main/
+_taste_skill_repo/
+
+# Local design specs, prototypes & test samples
+CODE_EXPLANATION.md
+Transfiler_PRD.md
+ui_prototype_preview.html
+sample_docs/
+
 # OS temporary files
 Thumbs.db
 Desktop.ini
 ~$*.xlsx
 ~$*.docx
 ~$*.doc
+
